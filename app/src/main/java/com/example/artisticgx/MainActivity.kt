@@ -22,7 +22,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("ARtistic GX")
+                //  Remove comment from below to access CameraScreen
+                       //     MainScreen()
+
+                   //Greeting("ARtistic GX")
                 }
             }
         }

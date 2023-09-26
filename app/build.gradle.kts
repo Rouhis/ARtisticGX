@@ -1,11 +1,14 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+
+    //KSP
+    id("com.google.devtools.ksp")
 }
 
 android {
     namespace = "com.example.artisticgx"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.artisticgx"
@@ -38,6 +41,9 @@ android {
     }
     buildFeatures {
         compose = true
+        //Camera
+        viewBinding = true
+
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -48,6 +54,7 @@ android {
         }
     }
 }
+
 
 dependencies {
 
@@ -62,6 +69,37 @@ dependencies {
     
     //ARCore
     implementation ("com.google.ar:core:1.33.0")
+
+    //Navigation
+    implementation("androidx.navigation:navigation-compose:2.7.3")
+
+    //Lifecycle
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.2")
+
+    //Camera
+    implementation ("androidx.camera:camera-core:1.2.2")
+    implementation ("androidx.camera:camera-camera2:1.2.2")
+    implementation ("androidx.camera:camera-lifecycle:1.2.2")
+    implementation ("androidx.camera:camera-video:1.2.2")
+    implementation ("androidx.camera:camera-view:1.2.2")
+    implementation ("androidx.camera:camera-extensions:1.2.2")
+
+    //Accompanist lib
+    implementation ("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
+
+    ////KOIN BASE////
+    implementation ("io.insert-koin:koin-core:3.4.2")
+    implementation ("io.insert-koin:koin-android:3.4.2")
+    implementation ("io.insert-koin:koin-androidx-compose:3.4.6")
+
+    ////KOIN KSP////
+    implementation ("io.insert-koin:koin-annotations:1.2.2")
+   // ksp ("io.insert-koin:koin-ksp-compiler:1.2.2")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
