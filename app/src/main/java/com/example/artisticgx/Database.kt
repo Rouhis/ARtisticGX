@@ -13,6 +13,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import kotlinx.coroutines.flow.Flow
 
+// Frames and Pictures are saved to the DB as ByteArrays
 @Entity
 data class Frame(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
@@ -30,6 +31,9 @@ data class Picture(
 interface FrameDao {
     @Query("SELECT * FROM Frame")
     fun getAll(): Flow<List<Frame>>
+
+    @Query("SELECT frame.frame FROM Frame WHERE frame.id LIKE :id")
+    fun getFrame(id: Int): Flow<ByteArray>
 
     @Insert
     suspend fun addFrame(frame: Frame)
@@ -58,6 +62,7 @@ abstract class ArtisticDB : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: ArtisticDB? = null
+        // A function, that creates an instance of the DB
         fun getInstance(context: Context): ArtisticDB {
             synchronized(this) {
                 var instance = INSTANCE
