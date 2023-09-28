@@ -27,6 +27,12 @@ data class Picture(
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB, name = "picture") val picture: ByteArray?
 )
 
+@Entity
+data class FramedPicture(
+        @PrimaryKey(autoGenerate = true) val id: Int = 0,
+        @ColumnInfo(typeAffinity = ColumnInfo.BLOB, name = "framed_picture") val framedPicture: ByteArray?
+)
+
 @Dao
 interface FrameDao {
     @Query("SELECT * FROM Frame")
@@ -54,11 +60,26 @@ interface PictureDao {
     suspend fun delete(picture: Picture)
 }
 
-@Database(entities = [Frame::class, Picture::class], version = 1)
+@Dao
+interface FramedPictureDao {
+    @Query("SELECT * FROM FramedPicture")
+    fun getAll(): Flow<List<FramedPicture>>
+
+    @Query("SELECT FramedPicture.framed_picture FROM FramedPicture WHERE FramedPicture.id LIKE :id")
+    fun getFramedPicture(id: Int): Flow<ByteArray>
+
+    @Insert
+    suspend fun addFramedPicture(framedPicture: FramedPicture)
+
+    @Delete
+    suspend fun delete(framedPicture: FramedPicture)
+}
+
+@Database(entities = [Frame::class, Picture::class, FramedPicture::class], version = 2)
 abstract class ArtisticDB : RoomDatabase() {
     abstract fun FrameDao(): FrameDao
     abstract fun PictureDao(): PictureDao
-
+    abstract fun FramedPictureDao(): FramedPictureDao
     companion object {
         @Volatile
         private var INSTANCE: ArtisticDB? = null

@@ -99,15 +99,24 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos)
     val byte = bos.toByteArray()
     println(":DDDDD $byte")
-    val byteArrayToBitMap = BitmapFactory.decodeByteArray(byte, 0, byte.size)
 
     Text("Hello World")
     Row {
         Button(
-            onClick = { model.addNewFrame(byte) },
+            onClick = {
+                model.addNewFrame(byte) },
             modifier = Modifier.padding(all = 8.dp)
         ) {
-            Text("Add to db")
+            Text("Add frame to db")
+        }
+        Button(
+                onClick = {
+                    /*mergedBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos)
+                    val framedImage = bos.toByteArray()
+                    model.addNewFramedPicture(framedImage)*/ },
+                modifier = Modifier.padding(all = 8.dp)
+        ) {
+            Text("Add framed picture to db")
         }
     }
     // Display the frame from the DB
@@ -133,8 +142,8 @@ fun TestPhoto(){
         painter = imagePainter,
         contentDescription = null, // Provide a content description for accessibility (if needed)
         modifier = Modifier
-            .fillMaxSize()
-            .zIndex(1F)
+                .fillMaxSize()
+                .zIndex(1F)
     )
 }
 
