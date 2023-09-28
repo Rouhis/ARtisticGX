@@ -7,10 +7,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,9 +28,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.LiveData
 import com.example.artisticgx.ui.theme.ARtisticGXTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -48,7 +54,10 @@ class MainActivity : ComponentActivity() {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        DisplayFrames(viewModel, "https://users.metropolia.fi/~tuomheik/test/test.png")
+                        DisplayFrames(
+                            viewModel,
+                            "https://users.metropolia.fi/~tuomheik/test/test.png"
+                        )
                     }
                 }
             }
@@ -62,15 +71,19 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
     // Observe the LiveData
     val newFrame = model.getFrame().observeAsState()
     val frames = model.getAllFrames().observeAsState(listOf())
-
     // Initialize a placeholder BitMap
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-
     var bitmap by remember { mutableStateOf(initData) }
     var bitmapFromDB by remember { mutableStateOf(initData) }
 
     // Get an Image from the given url as a BitMap and convert it into ByteArray
     val bos = ByteArrayOutputStream()
+
+    if (newFrame.value != null) {
+
+        bitmapFromDB =
+            BitmapFactory.decodeByteArray(newFrame.value, 0, newFrame.value!!.size)
+    }
     LaunchedEffect(url) {
         bitmap = getFrame(url)
     }
@@ -87,25 +100,34 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
         ) {
             Text("Add to db")
         }
-        Button(
-            onClick = {
-                println("xpdpx ${newFrame.value}")
-                println("xpdd ${newFrame.value!!.size}")
-                // Use the value from observing LiveData, and if the value is not empty
-                // Convert the ByteArray from the DB into a bitmap and assign it to a variable
-                if (newFrame.value != null) {
-                    bitmapFromDB = BitmapFactory.decodeByteArray(newFrame.value, 0, newFrame.value!!.size)
-                }
-            },
-            modifier = Modifier.padding(all = 8.dp)
-        ) {
-            Text("Get frame from db")
-        }
     }
     // Display the frame from the DB
+    Box(modifier = Modifier
+        .height(500.dp)
+        .width(200.dp)) {
+        // First Image (bitmap from DB)
+        Image(
+            bitmap = bitmapFromDB.asImageBitmap(),
+            contentDescription = "Bitmap image",
+            modifier = Modifier
+                .fillMaxSize()
+                .zIndex(2F) // Make the first Image fill the entire Box
+        )
+            TestPhoto()
+    }
+
+
+}
+
+@Composable
+fun TestPhoto(){
+    val imagePainter = painterResource(id = R.drawable.testpoto)
     Image(
-        bitmap = bitmapFromDB.asImageBitmap(),
-        contentDescription = "Bitmap image"
+        painter = imagePainter,
+        contentDescription = null, // Provide a content description for accessibility (if needed)
+        modifier = Modifier
+            .fillMaxSize()
+            .zIndex(1F)
     )
 }
 
@@ -123,5 +145,6 @@ private suspend fun getFrame(url: String): Bitmap =
 @Composable
 fun GreetingPreview() {
     ARtisticGXTheme {
+
     }
 }
