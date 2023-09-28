@@ -1,5 +1,6 @@
 package com.example.artisticgx
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -75,6 +76,11 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
     var bitmap by remember { mutableStateOf(initData) }
     var bitmapFromDB by remember { mutableStateOf(initData) }
+     // Replace with your application context
+    val drawableId = R.drawable.testpoto // Replace with the resource ID of your drawable
+    val context = MyApp.appContext
+
+// Now, mergedBitmap contains the photo inside the photo frame.
 
     // Get an Image from the given url as a BitMap and convert it into ByteArray
     val bos = ByteArrayOutputStream()
@@ -84,6 +90,9 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
         bitmapFromDB =
             BitmapFactory.decodeByteArray(newFrame.value, 0, newFrame.value!!.size)
     }
+    val bitmaptwo = getBitmapFromDrawable(context, drawableId)
+    val mergedBitmap = mergeBitmaps(bitmapFromDB, bitmaptwo)
+
     LaunchedEffect(url) {
         bitmap = getFrame(url)
     }
@@ -102,18 +111,16 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
         }
     }
     // Display the frame from the DB
-    Box(modifier = Modifier
-        .height(500.dp)
-        .width(200.dp)) {
+    Box(modifier = Modifier)
+    {
         // First Image (bitmap from DB)
         Image(
-            bitmap = bitmapFromDB.asImageBitmap(),
+            bitmap = mergedBitmap.asImageBitmap(),
             contentDescription = "Bitmap image",
             modifier = Modifier
-                .fillMaxSize()
-                .zIndex(2F) // Make the first Image fill the entire Box
+
         )
-            TestPhoto()
+
     }
 
 
