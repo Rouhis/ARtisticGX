@@ -1,10 +1,9 @@
-package com.example.artisticgx
+package com.example.artisticgx.data
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -45,18 +44,4 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch { db.PictureDao().addPicture(addNewPicture) }
     }
 
-    fun getAllFramedPictures(): LiveData<List<FramedPicture>> {
-        val allFramedPictures: Flow<List<FramedPicture>> = db.FramedPictureDao().getAll()
-        return allFramedPictures.asLiveData()
-    }
-
-    fun getFramedPicture(): LiveData<ByteArray> {
-        val newFramedPicture: Flow<ByteArray> = db.FramedPictureDao().getFramedPicture(1)
-        return newFramedPicture.asLiveData()
-    }
-
-    fun addNewFramedPicture(framedPicture: ByteArray) {
-        val addNewFramedPicture = FramedPicture(0, framedPicture)
-        viewModelScope.launch { db.FramedPictureDao().addFramedPicture(addNewFramedPicture) }
-    }
 }
