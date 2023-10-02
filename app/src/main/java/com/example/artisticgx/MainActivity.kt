@@ -23,9 +23,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                 //  Remove comment from below to access CameraScreen
-                       //     MainScreen()
-
-                   //Greeting("ARtistic GX")
+                           MainScreen()
                 }
             }
         }
