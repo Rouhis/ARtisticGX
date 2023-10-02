@@ -67,6 +67,7 @@ fun PreviewImageCapture() {
                 galleryImage.value = ImageDecoder.decodeBitmap(source)
             }
             galleryImage.value?.let { image ->
+             //   Log.d("qwerty", "valittu $image" )
                 Image(
                     bitmap = image.asImageBitmap(),
                     contentDescription = null,
@@ -76,7 +77,7 @@ fun PreviewImageCapture() {
 
             // Show taken photo
             result.value?.let { image ->
-                Log.d("qwerty", "let image")
+              //  Log.d("qwerty", "otettu $image" )
                 Image(
                     bitmap = image.asImageBitmap(),
                     contentDescription = null,
