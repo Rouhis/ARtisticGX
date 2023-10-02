@@ -71,6 +71,7 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.5.2")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
 
+
     //Room
     val room_version = "2.5.2"
     implementation("androidx.room:room-runtime:$room_version")
@@ -83,9 +84,7 @@ dependencies {
     testImplementation("androidx.room:room-testing:$room_version")
     implementation("androidx.room:room-paging:$room_version")
 
-    //ARCore
-    implementation ("com.google.ar:core:1.39.0")
-    implementation("androidx.room:room-common:2.5.2")
+    implementation ("io.github.sceneview:arsceneview:0.10.2")
 
     //Navigation
     implementation("androidx.navigation:navigation-compose:2.7.3")
@@ -116,7 +115,6 @@ dependencies {
     ////KOIN KSP////
     implementation ("io.insert-koin:koin-annotations:1.2.2")
     ksp ("io.insert-koin:koin-ksp-compiler:1.2.2")
-
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

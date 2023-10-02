@@ -1,6 +1,7 @@
 package com.example.artisticgx
 
 import android.graphics.Color
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.LinearLayout
 import androidx.camera.view.LifecycleCameraController
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
+
 
 
 @Composable
@@ -40,5 +42,7 @@ fun ARCore() {
                 }
             })
 
+
     }
 }
+
