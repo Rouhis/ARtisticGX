@@ -72,51 +72,69 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
     // Observe the LiveData
     val newFrame = model.getFrame().observeAsState()
     val frames = model.getAllFrames().observeAsState(listOf())
+    val newPicture = model.getPicture().observeAsState()
+
     // Initialize a placeholder BitMap
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-    var bitmap by remember { mutableStateOf(initData) }
-    var bitmapFromDB by remember { mutableStateOf(initData) }
+    var frameBitMap by remember { mutableStateOf(initData) }
+    var frameBitMapFromDB by remember { mutableStateOf(initData) }
+    var pictureBitMap by remember { mutableStateOf(initData) }
+    var pictureBitMapFromDB by remember { mutableStateOf(initData) }
+
+
+    // Get an Image from the given url as a BitMap
+    LaunchedEffect(url) {
+        frameBitMap = getFrame(url)
+    }
+
+    val pictureUrl = "https://users.metropolia.fi/~tuomheik/test/pictureTest.jpg"
+    LaunchedEffect(pictureUrl) {
+        pictureBitMap = getFrame(pictureUrl)
+    }
+
      // Replace with your application context
     val drawableId = R.drawable.testpoto // Replace with the resource ID of your drawable
     val context = MyApp.appContext
 
-// Now, mergedBitmap contains the photo inside the photo frame.
-
-    // Get an Image from the given url as a BitMap and convert it into ByteArray
-    val bos = ByteArrayOutputStream()
-
     if (newFrame.value != null) {
-
-        bitmapFromDB =
+        // get bitmap from the DB as a byteArray and convert it into a bitmap
+        frameBitMapFromDB =
             BitmapFactory.decodeByteArray(newFrame.value, 0, newFrame.value!!.size)
     }
-    val bitmaptwo = getBitmapFromDrawable(context, drawableId)
-    val mergedBitmap = mergeBitmaps(bitmapFromDB, bitmaptwo)
 
-    LaunchedEffect(url) {
-        bitmap = getFrame(url)
+    if (newPicture.value != null) {
+        pictureBitMapFromDB =
+            BitmapFactory.decodeByteArray(newPicture.value, 0, newPicture.value!!.size)
     }
-    bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos)
-    val byte = bos.toByteArray()
-    println(":DDDDD $byte")
+
+    // Now, mergedBitmap contains the photo inside the photo frame.
+    val bitmaptwo = getBitmapFromDrawable(context, drawableId)
+    val mergedBitmap = mergeBitmaps(frameBitMapFromDB, pictureBitMapFromDB)
+
+    val frameByteArray = getByteFromBitMap(frameBitMap)
+    val pictureByteArray = getByteFromBitMap(pictureBitMap)
+
+    if (frameByteArray == pictureByteArray) {
+        println("Values are the same")
+    } else {
+        println("Values are not the same")
+    }
 
     Text("Hello World")
     Row {
         Button(
             onClick = {
-                model.addNewFrame(byte) },
+                model.addNewFrame(frameByteArray) },
             modifier = Modifier.padding(all = 8.dp)
         ) {
             Text("Add frame to db")
         }
         Button(
                 onClick = {
-                    /*mergedBitmap.compress(Bitmap.CompressFormat.PNG, 100, bos)
-                    val framedImage = bos.toByteArray()
-                    model.addNewFramedPicture(framedImage)*/ },
+                    model.addNewPicture(pictureByteArray) },
                 modifier = Modifier.padding(all = 8.dp)
         ) {
-            Text("Add framed picture to db")
+            Text("Add picture to db")
         }
     }
     // Display the frame from the DB
@@ -142,8 +160,8 @@ fun TestPhoto(){
         painter = imagePainter,
         contentDescription = null, // Provide a content description for accessibility (if needed)
         modifier = Modifier
-                .fillMaxSize()
-                .zIndex(1F)
+            .fillMaxSize()
+            .zIndex(1F)
     )
 }
 
@@ -156,6 +174,14 @@ private suspend fun getFrame(url: String): Bitmap =
         val bitmap = BitmapFactory.decodeStream(stream)
         return@withContext bitmap
     }
+
+// Convert a given Bitmap to a ByteArray
+private fun getByteFromBitMap(bitmap: Bitmap): ByteArray {
+    val bos = ByteArrayOutputStream()
+    bos.reset()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos)
+    return bos.toByteArray()
+}
 
 @Preview(showBackground = true)
 @Composable

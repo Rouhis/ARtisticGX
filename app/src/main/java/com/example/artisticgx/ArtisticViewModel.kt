@@ -35,6 +35,11 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
         return allPictures.asLiveData()
     }
 
+    fun getPicture(): LiveData<ByteArray> {
+        val newPicture: Flow<ByteArray> = db.PictureDao().getPicture(1)
+        return newPicture.asLiveData()
+    }
+
     fun addNewPicture(picture: ByteArray) {
         val addNewPicture = Picture(0, null, picture)
         viewModelScope.launch { db.PictureDao().addPicture(addNewPicture) }
