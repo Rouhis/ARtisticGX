@@ -47,6 +47,9 @@ interface PictureDao {
     @Query("SELECT * FROM Picture")
     fun getAll(): Flow<List<Picture>>
 
+    @Query("SELECT Picture.picture FROM Picture WHERE Picture.id LIKE :id")
+    fun getPicture(id: Int): Flow<ByteArray>
+
     @Insert
     suspend fun addPicture(picture: Picture)
 
