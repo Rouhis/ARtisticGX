@@ -13,6 +13,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import com.google.ar.core.Config
 import io.github.sceneview.ar.node.PlacementMode
+import io.github.sceneview.math.Position
 
 
 @Composable
@@ -34,7 +35,8 @@ fun ARScreen(model:String) {
                 modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.INSTANT).apply {
                     loadModelGlbAsync(
                         glbFileLocation = "${model}.glb",
-                        scaleToUnits = 0.8f
+                        scaleToUnits = 0.8f,
+                        centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f)
                     ){
 
                     }
