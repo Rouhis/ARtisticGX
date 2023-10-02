@@ -14,7 +14,7 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.flow.Flow
 
 
-@Database(entities = [Frame::class, Picture::class], version = 3)
+@Database(entities = [Frame::class, Picture::class], version = 4)
 abstract class ArtisticDB : RoomDatabase() {
     abstract fun FrameDao(): FrameDao
     abstract fun PictureDao(): PictureDao

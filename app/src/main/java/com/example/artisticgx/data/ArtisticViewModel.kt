@@ -18,15 +18,25 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
     }
 
     // Add a new frame to the DB
-    fun addNewFrame(frame: ByteArray) {
+    fun addNewFrame(frame: ByteArray, rowCount: Int) {
         val newFrames = Frame(0, frame)
-        viewModelScope.launch { db.FrameDao().addFrame(newFrames) }
+        if (rowCount <= 7) {
+            viewModelScope.launch {
+                db.FrameDao().addFrame(newFrames)
+                println("new frame added $newFrames")
+            }
+        }
     }
 
     // Get a frame from the DB with the given ID
     fun getFrame(): LiveData<ByteArray> {
         val newFrame: Flow<ByteArray> = db.FrameDao().getFrame(1)
         return newFrame.asLiveData()
+    }
+
+    fun isEmpty(): LiveData<Int> {
+        val isEmpty: Flow<Int> = db.FrameDao().isEmpty()
+        return isEmpty.asLiveData()
     }
 
     fun getAllPictures(): LiveData<List<Picture>> {

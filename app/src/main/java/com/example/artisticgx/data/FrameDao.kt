@@ -14,6 +14,9 @@ interface FrameDao {
     @Query("SELECT frame.frame FROM Frame WHERE frame.id LIKE :id")
     fun getFrame(id: Int): Flow<ByteArray>
 
+    @Query("SELECT count(*) FROM Frame")
+    fun isEmpty(): Flow<Int>
+
     @Insert
     suspend fun addFrame(frame: Frame)
 

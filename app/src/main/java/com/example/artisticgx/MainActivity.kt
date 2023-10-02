@@ -1,8 +1,10 @@
 package com.example.artisticgx
 
+import android.database.DatabaseUtils
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -15,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,9 +41,11 @@ import androidx.compose.ui.zIndex
 import com.example.artisticgx.data.ArtisticViewModel
 import com.example.artisticgx.ui.theme.ARtisticGXTheme
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.net.URL
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class MainActivity : ComponentActivity() {
     private val viewModel: ArtisticViewModel by viewModels()
@@ -55,10 +62,7 @@ class MainActivity : ComponentActivity() {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        DisplayFrames(
-                            viewModel,
-                            "https://users.metropolia.fi/~tuomheik/test/test.png"
-                        )
+                        DisplayFrames(viewModel)
                     }
                 }
             }
@@ -67,40 +71,54 @@ class MainActivity : ComponentActivity() {
 }
 
 // Create buttons for adding frames to DB and and showing a frame from DB
+@OptIn(ExperimentalEncodingApi::class)
 @Composable
-fun DisplayFrames(model: ArtisticViewModel, url: String) {
+fun DisplayFrames(model: ArtisticViewModel) {
     // Observe the LiveData
     val newFrame = model.getFrame().observeAsState()
     val frames = model.getAllFrames().observeAsState(listOf())
     val newPicture = model.getPicture().observeAsState()
 
+    // Check if there are no rows in the frame table. Returns 0 if table is empty, else returns the amount of rows
+    val isEmpty = model.isEmpty().observeAsState()
+
     // Initialize a placeholder BitMap
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-    var frameBitMap by remember { mutableStateOf(initData) }
     var frameBitMapFromDB by remember { mutableStateOf(initData) }
     var pictureBitMap by remember { mutableStateOf(initData) }
     var pictureBitMapFromDB by remember { mutableStateOf(initData) }
 
-
     // Get an Image from the given url as a BitMap
-    LaunchedEffect(url) {
-        frameBitMap = getFrame(url)
-    }
 
     val pictureUrl = "https://users.metropolia.fi/~tuomheik/test/pictureTest.jpg"
     LaunchedEffect(pictureUrl) {
-        pictureBitMap = getFrame(pictureUrl)
+        pictureBitMap = getPicture(pictureUrl)
     }
 
-     // Replace with your application context
+    // get 8 different frames
+    val frameUrl = listOf(
+        "https://users.metropolia.fi/~tuomheik/test/frame1",
+        "https://users.metropolia.fi/~tuomheik/test/frame2",
+        "https://users.metropolia.fi/~tuomheik/test/frame3",
+        "https://users.metropolia.fi/~tuomheik/test/frame4",
+        "https://users.metropolia.fi/~tuomheik/test/frame5",
+        "https://users.metropolia.fi/~tuomheik/test/frame6",
+        "https://users.metropolia.fi/~tuomheik/test/frame7",
+        "https://users.metropolia.fi/~tuomheik/test/frame8"
+    )
+    // check that there are under 9 rows in the frame table and that the value isn't null
+    LaunchedEffect(frameUrl) {
+        // Go through all of the frame URLs and add them to the database
+        frameUrl.forEach {
+            val frameBitMap = getPicture(it)
+            val frameByteArray = getByteFromBitMap(frameBitMap)
+            isEmpty.value?.let { it1 -> model.addNewFrame(frameByteArray, it1) }
+        }
+    }
+
+    // Replace with your application context
     val drawableId = R.drawable.testpoto // Replace with the resource ID of your drawable
     val context = MyApp.appContext
-
-    if (newFrame.value != null) {
-        // get bitmap from the DB as a byteArray and convert it into a bitmap
-        frameBitMapFromDB =
-            BitmapFactory.decodeByteArray(newFrame.value, 0, newFrame.value!!.size)
-    }
 
     if (newPicture.value != null) {
         pictureBitMapFromDB =
@@ -111,54 +129,43 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
     val bitmaptwo = getBitmapFromDrawable(context, drawableId)
     val mergedBitmap = mergeBitmaps(frameBitMapFromDB, pictureBitMapFromDB)
 
-    val frameByteArray = getByteFromBitMap(frameBitMap)
     val pictureByteArray = getByteFromBitMap(pictureBitMap)
-
-    if (frameByteArray == pictureByteArray) {
-        println("Values are the same")
-    } else {
-        println("Values are not the same")
-    }
+    val mergedByteArray = getByteFromBitMap(mergedBitmap)
+    val test = Base64.encodeToString(mergedByteArray, Base64.DEFAULT)
 
     Text("Hello World")
     Row {
         Button(
             onClick = {
-                model.addNewFrame(frameByteArray) },
+                model.addNewPicture(pictureByteArray)
+            },
             modifier = Modifier.padding(all = 8.dp)
-        ) {
-            Text("Add frame to db")
-        }
-        Button(
-                onClick = {
-                    model.addNewPicture(pictureByteArray) },
-                modifier = Modifier.padding(all = 8.dp)
         ) {
             Text("Add picture to db")
         }
     }
     // Display the frame from the DB
-    Box(modifier = Modifier)
-    {
-        // First Image (bitmap from DB)
-        LazyVerticalGrid(GridCells.Adaptive(minSize = 128.dp)) {
+    // First Image (bitmap from DB)
+    LazyVerticalGrid(GridCells.Adaptive(minSize = 128.dp), userScrollEnabled = true) {
 
-            items(frames.value) {
-                if (it.frame != null) {
-                    // get bitmap from the DB as a byteArray and convert it into a bitmap
-                    frameBitMapFromDB =
-                        BitmapFactory.decodeByteArray(it.frame, 0, it.frame!!.size)
-                }
-                Image(bitmap = frameBitMapFromDB.asImageBitmap(),
-                    contentDescription = "Bitmap image",
-                    modifier = Modifier)
+        items(frames.value) {
+            if (it.frame != null) {
+                // get bitmap from the DB as a byteArray and convert it into a bitmap
+                frameBitMapFromDB =
+                    BitmapFactory.decodeByteArray(it.frame, 0, it.frame!!.size)
             }
+            Image(
+                bitmap = frameBitMapFromDB.asImageBitmap(),
+                contentDescription = "Bitmap image",
+                modifier = Modifier
+            )
         }
+
     }
 }
 
 @Composable
-fun TestPhoto(){
+fun TestPhoto() {
     val imagePainter = painterResource(id = R.drawable.testpoto)
     Image(
         painter = imagePainter,
@@ -169,17 +176,8 @@ fun TestPhoto(){
     )
 }
 
-@Composable
-fun gridlist(model: ArtisticViewModel) {
-    val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-    var frameBitMapFromDB by remember { mutableStateOf(initData) }
-    val frames = model.getAllFrames().observeAsState(listOf())
-
-}
-
-
 // Function for getting a BitMap from the given URL
-private suspend fun getFrame(url: String): Bitmap =
+private suspend fun getPicture(url: String): Bitmap =
     withContext(Dispatchers.IO) {
         val imageUrl = URL(url)
         val connection = imageUrl.openConnection()
