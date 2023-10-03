@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val currentModel = remember {
-                mutableStateOf("ferrari")
+                mutableStateOf("taulu")
             }
           ARScreen(currentModel.value)
           /*  ARtisticGXTheme {
