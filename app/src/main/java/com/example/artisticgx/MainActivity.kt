@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.artisticgx.data.ArtisticViewModel
 import com.example.artisticgx.ui.theme.ARtisticGXTheme
+import com.google.firebase.crashlytics.buildtools.reloc.org.apache.commons.io.IOUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -100,7 +101,6 @@ fun DisplayFrames(model: ArtisticViewModel) {
         "https://users.metropolia.fi/~tuomheik/test/frame1",
         "https://users.metropolia.fi/~tuomheik/test/frame2",
         "https://users.metropolia.fi/~tuomheik/test/frame3",
-        "https://users.metropolia.fi/~tuomheik/test/frame4",
         "https://users.metropolia.fi/~tuomheik/test/frame5",
         "https://users.metropolia.fi/~tuomheik/test/frame6",
         "https://users.metropolia.fi/~tuomheik/test/frame7",
@@ -132,7 +132,9 @@ fun DisplayFrames(model: ArtisticViewModel) {
     val pictureByteArray = getByteFromBitMap(pictureBitMap)
     val mergedByteArray = getByteFromBitMap(mergedBitmap)
     val test = Base64.encodeToString(mergedByteArray, Base64.DEFAULT)
-
+    /*val test2 = test.byteInputStream()
+    val test3 = IOUtils.toByteArray(test2)
+    val xdd = BitmapFactory.decodeByteArray(test3, 0, test3.size)*/
     Text("Hello World")
     Row {
         Button(

@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -70,6 +71,10 @@ dependencies {
     // LiveData
     implementation("androidx.compose.runtime:runtime-livedata:1.5.2")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
 
     //Room
     val room_version = "2.5.2"
