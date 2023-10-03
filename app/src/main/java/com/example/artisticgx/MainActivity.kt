@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,7 +42,16 @@ import androidx.compose.ui.zIndex
 import com.example.artisticgx.data.ArtisticViewModel
 import com.example.artisticgx.ui.theme.ARtisticGXTheme
 import com.google.firebase.crashlytics.buildtools.reloc.org.apache.commons.io.IOUtils
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.IgnoreExtraProperties
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -50,6 +60,11 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 
 class MainActivity : ComponentActivity() {
     private val viewModel: ArtisticViewModel by viewModels()
+
+    // Create a reference to the FireBase database
+    private val fireBaseDB =
+        FirebaseDatabase.getInstance("https://artisticgx-default-rtdb.europe-west1.firebasedatabase.app")
+    private val myRef = fireBaseDB.getReference("qrcodes")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -63,7 +78,7 @@ class MainActivity : ComponentActivity() {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        DisplayFrames(viewModel)
+                        DisplayFrames(viewModel, myRef)
                     }
                 }
             }
@@ -74,7 +89,7 @@ class MainActivity : ComponentActivity() {
 // Create buttons for adding frames to DB and and showing a frame from DB
 @OptIn(ExperimentalEncodingApi::class)
 @Composable
-fun DisplayFrames(model: ArtisticViewModel) {
+fun DisplayFrames(model: ArtisticViewModel, myRef: DatabaseReference) {
     // Observe the LiveData
     val newFrame = model.getFrame().observeAsState()
     val frames = model.getAllFrames().observeAsState(listOf())
@@ -135,6 +150,17 @@ fun DisplayFrames(model: ArtisticViewModel) {
     /*val test2 = test.byteInputStream()
     val test3 = IOUtils.toByteArray(test2)
     val xdd = BitmapFactory.decodeByteArray(test3, 0, test3.size)*/
+    var id by remember { mutableLongStateOf(0) }
+    LaunchedEffect(id) {
+        if (id < 5) {
+            println("id: $id")
+            readFromFirebase(myRef, id)
+            writeToFirebase(myRef, id, test)
+            id += 1
+            println("id after + 1: $id")
+        }
+    }
+
     Text("Hello World")
     Row {
         Button(
@@ -193,6 +219,34 @@ private fun getByteFromBitMap(bitmap: Bitmap): ByteArray {
     bos.reset()
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos)
     return bos.toByteArray()
+}
+
+private suspend fun readFromFirebase(myRef: DatabaseReference, id: Long): Long {
+
+    myRef.addValueEventListener(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            val value = snapshot.value
+            println("value: $value")
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            println("failed to read value ${error.toException()}")
+        }
+    })
+    delay(5000)
+    return id
+}
+
+private fun writeToFirebase(myRef: DatabaseReference, id: Long, mergedString: String) {
+    println("id is: $id")
+    val mergedBitMap = MergedBitMap(id, mergedString)
+    myRef.child("qrcode$id").setValue(mergedBitMap)
+}
+
+@IgnoreExtraProperties
+data class MergedBitMap(val id: Long? = null, val base64string: String? = null) {
+    // Null default values create a no-argument default constructor, which is needed
+    // for deserialization from a DataSnapshot.
 }
 
 @Preview(showBackground = true)
