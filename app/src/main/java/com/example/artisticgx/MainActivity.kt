@@ -39,9 +39,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val currentModel = remember {
-                mutableStateOf("taulu")
+                mutableStateOf("poster")
             }
-          ARScreen(currentModel.value)
+            QRScreen()
+          //ARScreen(currentModel.value)
           /*  ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
