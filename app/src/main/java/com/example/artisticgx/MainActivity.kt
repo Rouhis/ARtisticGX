@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
 
     // Create a reference to the FireBase database
     private val fireBaseDB =
-        FirebaseDatabase.getInstance("https://artisticgx-default-rtdb.europe-west1.firebasedatabase.app")
+        FirebaseDatabase.getInstance("https://artisticgx-acd29-default-rtdb.europe-west1.firebasedatabase.app")
     private val myRef = fireBaseDB.getReference("qrcodes")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -151,6 +151,7 @@ fun DisplayFrames(model: ArtisticViewModel, myRef: DatabaseReference) {
     val test3 = IOUtils.toByteArray(test2)
     val xdd = BitmapFactory.decodeByteArray(test3, 0, test3.size)*/
     var id by remember { mutableLongStateOf(0) }
+    println("XDDD $id")
     LaunchedEffect(id) {
         if (id < 5) {
             println("id: $id")
