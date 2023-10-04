@@ -3,19 +3,28 @@ package com.example.artisticgx
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Button
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,8 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -39,6 +53,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.net.URL
+import java.time.format.TextStyle
 
 class MainActivity : ComponentActivity() {
     private val viewModel: ArtisticViewModel by viewModels()
@@ -57,7 +72,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         DisplayFrames(
                             viewModel,
-                            "https://users.metropolia.fi/~tuomheik/test/test.png"
+                            "https://users.metropolia.fi/~tuomheik/test/frame1"
                         )
                     }
                 }
@@ -81,6 +96,10 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
     var pictureBitMap by remember { mutableStateOf(initData) }
     var pictureBitMapFromDB by remember { mutableStateOf(initData) }
 
+    //selected frame
+
+    var selectedFrameId by remember { mutableStateOf(-1) }
+
 
     // Get an Image from the given url as a BitMap
     LaunchedEffect(url) {
@@ -92,7 +111,7 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
         pictureBitMap = getFrame(pictureUrl)
     }
 
-     // Replace with your application context
+    // Replace with your application context
     val drawableId = R.drawable.testpoto // Replace with the resource ID of your drawable
     val context = MyApp.appContext
 
@@ -130,9 +149,9 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
             Text("Add frame to db")
         }
         Button(
-                onClick = {
-                    model.addNewPicture(pictureByteArray) },
-                modifier = Modifier.padding(all = 8.dp)
+            onClick = {
+                model.addNewPicture(pictureByteArray) },
+            modifier = Modifier.padding(all = 8.dp)
         ) {
             Text("Add picture to db")
         }
@@ -140,19 +159,55 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
     // Display the frame from the DB
     Box(modifier = Modifier)
     {
-        // First Image (bitmap from DB)
-        LazyVerticalGrid(GridCells.Adaptive(minSize = 128.dp)) {
-
+        LazyVerticalGrid(
+            GridCells.Adaptive(minSize = 128.dp),
+            modifier = Modifier.padding(16.dp)
+        ) {
             items(frames.value) {
                 if (it.frame != null) {
-                    // get bitmap from the DB as a byteArray and convert it into a bitmap
-                    frameBitMapFromDB =
+                    val frameBitmap = remember {
                         BitmapFactory.decodeByteArray(it.frame, 0, it.frame!!.size)
+                            .asImageBitmap()
+                    }
+                    val isSelected = it.id == selectedFrameId
+                    Box(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .clickable {
+                                Log.i("moi", "id ${it.id}")
+                                selectedFrameId = it.id
+                            }
+
+                    ) {
+                        Image(
+                            bitmap = frameBitMapFromDB.asImageBitmap(),
+                            contentDescription = "Bitmap image",
+                            modifier = Modifier
+                        )
+                        SelectedBanner(isSelected = isSelected)
+
+                    }
                 }
-                Image(bitmap = frameBitMapFromDB.asImageBitmap(),
-                    contentDescription = "Bitmap image",
-                    modifier = Modifier)
             }
+        }
+    }
+}
+@Composable
+fun SelectedBanner(isSelected: Boolean) {
+    if (isSelected) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = Color.Green)
+                .padding(8.dp)
+        ) {
+            Text(
+                text = "Selected",
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
@@ -194,6 +249,8 @@ private fun getByteFromBitMap(bitmap: Bitmap): ByteArray {
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos)
     return bos.toByteArray()
 }
+data class Frame(val frame: ByteArray?, val isSelected: Boolean = false)
+
 
 @Preview(showBackground = true)
 @Composable
