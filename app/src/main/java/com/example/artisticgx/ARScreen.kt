@@ -49,7 +49,7 @@ fun ARScreen(model:String) {
                 arSceneView.planeFindingEnabled
 
 
-                modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.INSTANT, ).apply {
+                modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.PLANE_HORIZONTAL, ).apply {
                     loadModelGlbAsync(
                         glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$model.glb",
                         scaleToUnits = 0.8f,

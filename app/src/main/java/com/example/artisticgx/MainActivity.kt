@@ -8,10 +8,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,6 +23,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
@@ -41,9 +45,9 @@ class MainActivity : ComponentActivity() {
             val currentModel = remember {
                 mutableStateOf("poster")
             }
-            QRScreen()
-          //ARScreen(currentModel.value)
-          /*  ARtisticGXTheme {
+            //QRScreen()
+          ARScreen("susi")
+           /* ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -54,14 +58,14 @@ class MainActivity : ComponentActivity() {
                     ) {
                         DisplayFrames(
                             viewModel,
-                            "https://users.metropolia.fi/~tuomheik/test/test.png"
+                            "https://users.metropolia.fi/~tuomheik/test/frame1.png"
                         )
-                    }
+                    }*/
                 }
-            }*/
+            }
         }
-    }
-}
+
+
 
 // Create buttons for adding frames to DB and and showing a frame from DB
 @Composable
