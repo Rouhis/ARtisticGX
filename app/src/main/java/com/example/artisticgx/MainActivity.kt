@@ -185,7 +185,7 @@ fun DisplayFrames(model: ArtisticViewModel, url: String,navController: NavContro
 @Composable
 fun AppNavigation(controller: NavHostController, viewModel: ArtisticViewModel, navController: NavController) {
 
-    NavHost(controller, startDestination = "DisplayFrames") {
+    NavHost(controller, startDestination = "ARScreen") {
         composable("DisplayFrames") {
             DisplayFrames(viewModel,"https://users.metropolia.fi/~tuomheik/test/frame1.png", navController)
         }
@@ -193,10 +193,10 @@ fun AppNavigation(controller: NavHostController, viewModel: ArtisticViewModel, n
          QRScreen(navController)
         }
         composable("ARScreen"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari")
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari", navController)
         }
         composable("ARScreen/{model}"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari")
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari", navController)
         }
     }
 }

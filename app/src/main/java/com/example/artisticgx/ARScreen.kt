@@ -10,8 +10,15 @@ import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.ArNode
 import android.util.Log
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.Text
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.google.android.filament.utils.h
 import com.google.ar.core.Config
 import com.google.ar.core.Config.LightEstimationMode
@@ -30,36 +37,38 @@ import io.github.sceneview.node.Node
 
 
 @Composable
-fun ARScreen(model:String) {
+fun ARScreen(model:String, navController: NavController) {
+
     val nodes = remember {
         mutableListOf<ArNode>()
     }
     val modelNode = remember {
         mutableStateOf<ArModelNode?>(null)
     }
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
             nodes = nodes,
             planeRenderer = true,
-            onCreate = {arSceneView ->
+            onCreate = { arSceneView ->
 
                 arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 arSceneView.planeRenderer.isShadowReceiver = false
                 arSceneView.planeFindingEnabled
 
 
-                modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.PLANE_VERTICAL, ).apply {
-                    loadModelGlbAsync(
-                        glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$model.glb",
-                        scaleToUnits = 0.8f,
-                        centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
+                modelNode.value =
+                    ArModelNode(arSceneView.engine, PlacementMode.PLANE_VERTICAL,).apply {
+                        loadModelGlbAsync(
+                            glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$model.glb",
+                            scaleToUnits = 0.8f,
+                            centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
 
-                    ){
-                        //
-                    //     rotation = Rotation(0f, 0f, 0f)
+                            ) {
+                            //
+                            //     rotation = Rotation(0f, 0f, 0f)
+                        }
                     }
-                }
 
                 nodes.add(modelNode.value!!)
             },
@@ -68,7 +77,27 @@ fun ARScreen(model:String) {
                 planeRenderer.isVisible = true
             }
         )
+        Image(painter = painterResource(id = R.drawable.qr_code_png5),
+            contentDescription = "qrkuva",
+            modifier = Modifier
+                .size(60.dp)
+                .padding(10.dp)
+                .clickable {
+                    navController.navigate("QRScreen")
+                }
+        )
 
+        Image(
+            painter = painterResource(id = R.drawable.lista2),
+            contentDescription = "lista",
+            modifier = Modifier
+                .size(60.dp)
+                .padding(10.dp)
+                .clickable {
+                    // Handle click action for the second image here
+                }
+                .align(Alignment.TopEnd) // Align the image to the top end (right corner)
+        )
     }
 
     LaunchedEffect(key1 = model){
