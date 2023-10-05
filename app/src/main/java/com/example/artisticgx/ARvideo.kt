@@ -48,17 +48,14 @@ fun Arframe(model:String) {
                         ){
                     }
                 }
-                
                 modelNode2.value = VideoNode(arSceneView.engine, glbFileLocation = "plane.glb",player = mediaPlayer ,scaleToUnits = 0.8f, centerOrigin = Position(x = 0.0f, y = 0.0f, z = 30f)).apply {
-                    PlacementMode.PLANE_VERTICAL
-
                     rotation = Rotation(0f, 0f, 180f)
 
                         mediaPlayer.start()
                 }
+
                 nodes.add(modelNode.value!!)
                 nodes.add(modelNode2.value!!)
-
                 Log.d("tuhma", "${modelNode.value}")
                 Log.d("tuhma", "$nodes")
 
@@ -71,15 +68,6 @@ fun Arframe(model:String) {
             }
 
         )
-        LaunchedEffect(key1 = "$model"){
-            nodes.add(modelNode.value!!)
-            nodes.add(modelNode2.value!!)
-
-            Log.e("errorloading","ERROR")
-        }
 
     }
-
-
-
 }
