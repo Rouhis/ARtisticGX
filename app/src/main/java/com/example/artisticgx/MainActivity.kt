@@ -42,6 +42,8 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf("taulu")
             }
           ARScreen(currentModel.value)
+            val test = viewModel.getAllModels().observeAsState(listOf())
+            println(":DD $test")
           /*  ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -63,8 +65,10 @@ class MainActivity : ComponentActivity() {
 }
 
 // Create buttons for adding frames to DB and and showing a frame from DB
+/*
 @Composable
 fun DisplayFrames(model: ArtisticViewModel, url: String) {
+
     // Observe the LiveData
     val newFrame = model.getFrame().observeAsState()
     val frames = model.getAllFrames().observeAsState(listOf())
@@ -147,7 +151,7 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
     }
 
 
-}
+}*/
 
 @Composable
 fun TestPhoto(){
