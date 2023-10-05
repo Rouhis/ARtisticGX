@@ -54,7 +54,7 @@ fun Arframe(frame: String, video: String) {
                 arSceneView.planeFindingEnabled
                 modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.PLANE_VERTICAL ).apply {
                     loadModelGlbAsync(
-                        glbFileLocation = "$frame.glb",
+                        glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$frame.glb",
                         scaleToUnits = 1f,
                         centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
 
