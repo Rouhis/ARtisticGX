@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column {
-                        DisplayFrames(model = viewModel, url ="https://users.metropolia.fi/~tuomheik/test/test.png" )
+                        DisplayFrames(model = viewModel, url ="https://users.metropolia.fi/~tuomheik/test/frame1.png" )
                         
                     }
 
