@@ -21,19 +21,7 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
 
     // Add a new model to the DB
     fun addNewModel(modelURL: String) {
-        val newModel = Models(0, modelURL)
+        val newModel = Models(0, modelURL, null, null)
         viewModelScope.launch { db.ModelsDao().addModel(newModel)}
     }
-
-    // Get all qrcodes form the DB
-    fun getAllQrcodes(): LiveData<List<Qrcodes>> {
-        val allQrcodes: Flow<List<Qrcodes>> = db.QrcodesDao().getAll()
-        return allQrcodes.asLiveData()
-    }
-
-    fun addNewQrcode() {
-        val newQrcode = Qrcodes(0, null)
-        viewModelScope.launch { db.QrcodesDao().addQrcode(newQrcode) }
-    }
-
 }
