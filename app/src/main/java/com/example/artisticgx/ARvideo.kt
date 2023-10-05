@@ -41,7 +41,7 @@ fun Arframe(frame: String, video: String) {
         )
         setDataSource(url)
         prepare() // might take long! (for buffering, etc)
-        start()
+
     }
     Box(modifier = Modifier.fillMaxSize()){
         ARScene(
