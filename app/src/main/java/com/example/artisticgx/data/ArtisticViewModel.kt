@@ -1,47 +1,32 @@
 package com.example.artisticgx.data
 
 import android.app.Application
+import android.graphics.Picture
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.google.ar.core.Frame
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class ArtisticViewModel(application: Application) : AndroidViewModel(application) {
     private val db = ArtisticDB.getInstance(application)
 
-    // Get all frames from the DB
-    fun getAllFrames(): LiveData<List<Frame>> {
-        val allFrames: Flow<List<Frame>> = db.FrameDao().getAll()
-        return allFrames.asLiveData()
+    // Get all models from the DB
+    fun getAllModels(): LiveData<List<Models>> {
+        val allModels: Flow<List<Models>> = db.ModelsDao().getAll()
+        return allModels.asLiveData()
     }
 
-    // Add a new frame to the DB
-    fun addNewFrame(frame: ByteArray) {
-        val newFrames = Frame(0, frame)
-        viewModelScope.launch { db.FrameDao().addFrame(newFrames) }
+    // Add a new model to the DB
+    fun addNewModel(modelURL: String, modelName: String, modelImage: ByteArray) {
+        val newModel = Models(0, modelURL, modelName, modelImage)
+        viewModelScope.launch { db.ModelsDao().addModel(newModel)}
     }
 
-    // Get a frame from the DB with the given ID
-    fun getFrame(): LiveData<ByteArray> {
-        val newFrame: Flow<ByteArray> = db.FrameDao().getFrame(1)
-        return newFrame.asLiveData()
+    fun isEmpty(): LiveData<Int> {
+        val isEmpty: Flow<Int> = db.ModelsDao().isEmpty()
+        return isEmpty.asLiveData()
     }
-
-    fun getAllPictures(): LiveData<List<Picture>> {
-        val allPictures: Flow<List<Picture>> = db.PictureDao().getAll()
-        return allPictures.asLiveData()
-    }
-
-    fun getPicture(): LiveData<ByteArray> {
-        val newPicture: Flow<ByteArray> = db.PictureDao().getPicture(1)
-        return newPicture.asLiveData()
-    }
-
-    fun addNewPicture(picture: ByteArray) {
-        val addNewPicture = Picture(0, null, picture)
-        viewModelScope.launch { db.PictureDao().addPicture(addNewPicture) }
-    }
-
 }

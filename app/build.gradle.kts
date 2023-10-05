@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId = "com.example.artisticgx"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -115,6 +115,10 @@ dependencies {
     ////KOIN KSP////
     implementation ("io.insert-koin:koin-annotations:1.2.2")
     ksp ("io.insert-koin:koin-ksp-compiler:1.2.2")
+
+    ////Zxing///
+    implementation ("com.google.zxing:core:3.5.2")
+    //implementation ("com.journeyapps:zxing-android-embedded:3.0.1@aar")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

@@ -7,18 +7,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,13 +28,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.artisticgx.data.ArtisticViewModel
 import com.example.artisticgx.ui.theme.ARtisticGXTheme
-import io.github.sceneview.ar.arcore.ArFrame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -43,14 +44,17 @@ import java.net.URL
 
 class MainActivity : ComponentActivity() {
     private val viewModel: ArtisticViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var currentModel = remember {
-                mutableStateOf("kolibri")
+            val navController = rememberNavController()
+            val currentModel = remember {
+                mutableStateOf("ferrari")
             }
-          Arframe(frame = "frame", video = "kolibri")
-          /*  ARtisticGXTheme {
+          //  QRScreen()
+         // ARScreen(currentModel.value)
+            ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -59,118 +63,98 @@ class MainActivity : ComponentActivity() {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        DisplayFrames(
-                            viewModel,
-                            "https://users.metropolia.fi/~tuomheik/test/test.png"
+                        AppNavigation(
+                            controller = navController,
+                            viewModel = viewModel,
+                            navController = navController
                         )
                     }
                 }
-            }*/
+            }
         }
     }
 }
 
-// Create buttons for adding frames to DB and and showing a frame from DB
 @Composable
-fun DisplayFrames(model: ArtisticViewModel, url: String) {
-    // Observe the LiveData
-    val newFrame = model.getFrame().observeAsState()
-    val frames = model.getAllFrames().observeAsState(listOf())
-    val newPicture = model.getPicture().observeAsState()
+fun AppNavigation(controller: NavHostController, viewModel: ArtisticViewModel, navController: NavController) {
 
+    NavHost(controller, startDestination = "ARScreen") {
+        composable("GetModelsTest") {
+            GetModelsTest(viewModel, navController)
+        }
+        composable("QRScreen") { navBackStackEntry ->
+         QRScreen(navController)
+        }
+        composable("ARScreen"){navBackStackEntry ->
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari", navController)
+        }
+        composable("ARScreen/{model}"){navBackStackEntry ->
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari", navController)
+        }
+        composable("ArFrame/{frame}/{video}") { navBackStackEntry ->
+            navBackStackEntry.arguments?.getString("video")
+                ?.let { Arframe(frame = navBackStackEntry.arguments?.getString("frame")!!, video = it) }
+        }
+    }
+}
+
+@Composable
+fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
+    val isEmpty = model.isEmpty().observeAsState()
+    val models = model.getAllModels().observeAsState(listOf())
     // Initialize a placeholder BitMap
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-    var frameBitMap by remember { mutableStateOf(initData) }
-    var frameBitMapFromDB by remember { mutableStateOf(initData) }
-    var pictureBitMap by remember { mutableStateOf(initData) }
-    var pictureBitMapFromDB by remember { mutableStateOf(initData) }
+    var modelBitMap by remember { mutableStateOf(initData) }
+    val urls = listOf("sofa", "tableLamp", "lillyChair", "woodenCabinet")
 
-
-    // Get an Image from the given url as a BitMap
-    LaunchedEffect(url) {
-        frameBitMap = getFrame(url)
-    }
-
-    val pictureUrl = "https://users.metropolia.fi/~tuomheik/test/pictureTest.jpg"
-    LaunchedEffect(pictureUrl) {
-        pictureBitMap = getFrame(pictureUrl)
-    }
-
-     // Replace with your application context
-    val drawableId = R.drawable.testpoto // Replace with the resource ID of your drawable
-    val context = MyApp.appContext
-
-    if (newFrame.value != null) {
-        // get bitmap from the DB as a byteArray and convert it into a bitmap
-        frameBitMapFromDB =
-            BitmapFactory.decodeByteArray(newFrame.value, 0, newFrame.value!!.size)
-    }
-
-    if (newPicture.value != null) {
-        pictureBitMapFromDB =
-            BitmapFactory.decodeByteArray(newPicture.value, 0, newPicture.value!!.size)
-    }
-
-    // Now, mergedBitmap contains the photo inside the photo frame.
-    val bitmaptwo = getBitmapFromDrawable(context, drawableId)
-    val mergedBitmap = mergeBitmaps(frameBitMapFromDB, pictureBitMapFromDB)
-
-    val frameByteArray = getByteFromBitMap(frameBitMap)
-    val pictureByteArray = getByteFromBitMap(pictureBitMap)
-
-    if (frameByteArray == pictureByteArray) {
-        println("Values are the same")
-    } else {
-        println("Values are not the same")
-    }
-
-    Text("Hello World")
-    Row {
-        Button(
-            onClick = {
-                model.addNewFrame(frameByteArray) },
-            modifier = Modifier.padding(all = 8.dp)
-        ) {
-            Text("Add frame to db")
-        }
-        Button(
-                onClick = {
-                    model.addNewPicture(pictureByteArray) },
-                modifier = Modifier.padding(all = 8.dp)
-        ) {
-            Text("Add picture to db")
+    if (isEmpty.value != null) {
+        if (isEmpty.value!! < urls.size) {
+            println("toimii xdd")
+            urls.forEach {
+                LaunchedEffect(urls) {
+                    val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
+                    println(":DDD $bitmap")
+                    val modelImage = getByteFromBitMap(bitmap)
+                    model.addNewModel(
+                        "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
+                        it,
+                        modelImage
+                    )
+                }
+            }
         }
     }
-    // Display the frame from the DB
-    Box(modifier = Modifier)
+    Box(modifier = Modifier.clickable { })
     {
-        // First Image (bitmap from DB)
-        Image(
-            bitmap = mergedBitmap.asImageBitmap(),
-            contentDescription = "Bitmap image",
-            modifier = Modifier
-
-        )
+        LazyVerticalGrid(
+            GridCells.Adaptive(minSize = 128.dp),
+            modifier = Modifier.padding(16.dp)
+        ) {
+            items(models.value) {
+                val imageBitMap = remember {
+                    BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
+                }
+                modelBitMap = imageBitMap
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ) {
+                    Image(
+                        bitmap = modelBitMap.asImageBitmap(),
+                        contentDescription = "Bitmap image",
+                        modifier = Modifier
+                            .size(200.dp)
+                            .clickable { navController.navigate("ArFrame/${"frame"}/${"kolibri"}") }
+                    )
+                }
+            }
+        }
 
     }
-
-
-}
-
-@Composable
-fun TestPhoto(){
-    val imagePainter = painterResource(id = R.drawable.testpoto)
-    Image(
-        painter = imagePainter,
-        contentDescription = null, // Provide a content description for accessibility (if needed)
-        modifier = Modifier
-            .fillMaxSize()
-            .zIndex(1F)
-    )
 }
 
 // Function for getting a BitMap from the given URL
-private suspend fun getFrame(url: String): Bitmap =
+private suspend fun getImage(url: String): Bitmap =
     withContext(Dispatchers.IO) {
         val imageUrl = URL(url)
         val connection = imageUrl.openConnection()
