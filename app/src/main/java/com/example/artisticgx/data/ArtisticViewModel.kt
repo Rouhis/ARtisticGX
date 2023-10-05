@@ -24,4 +24,9 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
         val newModel = Models(0, modelURL, modelName, modelImage)
         viewModelScope.launch { db.ModelsDao().addModel(newModel)}
     }
+
+    fun isEmpty(): LiveData<Int> {
+        val isEmpty: Flow<Int> = db.ModelsDao().isEmpty()
+        return isEmpty.asLiveData()
+    }
 }

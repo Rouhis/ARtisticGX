@@ -11,6 +11,9 @@ interface ModelsDao {
     @Query("SELECT * FROM Models")
     fun getAll(): Flow<List<Models>>
 
+    @Query("SELECT count(*) FROM Models")
+    fun isEmpty(): Flow<Int>
+
     @Insert
     suspend fun addModel(model: Models)
 

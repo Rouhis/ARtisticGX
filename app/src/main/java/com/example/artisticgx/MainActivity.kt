@@ -7,10 +7,16 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +26,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
@@ -166,36 +173,69 @@ fun TestPhoto() {
 
 @Composable
 fun GetModelsTest(model: ArtisticViewModel) {
+    val isEmpty = model.isEmpty().observeAsState()
     val models = model.getAllModels().observeAsState(listOf())
     // Initialize a placeholder BitMap
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
     var modelBitMap by remember { mutableStateOf(initData) }
-    println(":DD $models")
-    val urls = listOf("sofa", "tableLamp")
+    val urls = listOf("sofa", "tableLamp", "lillyChair", "woodenCabinet")
 
-    urls.forEach {
-        LaunchedEffect(urls) {
-            val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
-            println(":DDD $bitmap")
-            val modelImage = getByteFromBitMap(bitmap)
-            model.addNewModel(
-                "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
-                it,
-                modelImage
-            )
+    if (isEmpty.value != null) {
+        if (isEmpty.value!! < urls.size) {
+            println("toimii xdd")
+            urls.forEach {
+                LaunchedEffect(urls) {
+                    val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
+                    println(":DDD $bitmap")
+                    val modelImage = getByteFromBitMap(bitmap)
+                    model.addNewModel(
+                        "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
+                        it,
+                        modelImage
+                    )
+                }
+            }
         }
     }
-    models.value.forEach {
-        if (it.image != null) {
-            modelBitMap =
-                BitmapFactory.decodeByteArray(it.image, 0, it.image.size)
-        }
-        Row {
+    /*Row(
+        modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        models.value.forEach {
+            if (it.image != null) {
+                modelBitMap =
+                    BitmapFactory.decodeByteArray(it.image, 0, it.image.size)
+            }
             Image(
                 bitmap = modelBitMap.asImageBitmap(),
                 contentDescription = ""
             )
         }
+    }*/
+    Box(modifier = Modifier.clickable { })
+    {
+        LazyVerticalGrid(
+            GridCells.Adaptive(minSize = 128.dp),
+            modifier = Modifier.padding(16.dp)
+        ) {
+            items(models.value) {
+                val imageBitMap = remember {
+                    BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
+                }
+                modelBitMap = imageBitMap
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ) {
+                    Image(
+                        bitmap = modelBitMap.asImageBitmap(),
+                        contentDescription = "Bitmap image",
+                        modifier = Modifier.size(200.dp)
+                    )
+                }
+            }
+        }
+
     }
 }
 
