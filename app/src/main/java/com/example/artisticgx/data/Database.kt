@@ -14,7 +14,7 @@ import androidx.room.RoomDatabase
 import kotlinx.coroutines.flow.Flow
 
 
-@Database(entities = [Models::class], version = 4)
+@Database(entities = [Models::class], version = 5)
 abstract class ArtisticDB : RoomDatabase() {
     abstract fun ModelsDao(): ModelsDao
     companion object {

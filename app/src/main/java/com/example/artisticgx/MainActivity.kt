@@ -41,25 +41,24 @@ class MainActivity : ComponentActivity() {
             val currentModel = remember {
                 mutableStateOf("taulu")
             }
-          ARScreen(currentModel.value)
-            val test = viewModel.getAllModels().observeAsState(listOf())
-            println(":DD $test")
-          /*  ARtisticGXTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        DisplayFrames(
-                            viewModel,
-                            "https://users.metropolia.fi/~tuomheik/test/test.png"
-                        )
-                    }
-                }
-            }*/
+            //ARScreen(currentModel.value)
+            GetModelsTest(viewModel)
+            /*  ARtisticGXTheme {
+                  // A surface container using the 'background' color from the theme
+                  Surface(
+                      modifier = Modifier.fillMaxSize(),
+                      color = MaterialTheme.colorScheme.background
+                  ) {
+                      Column(
+                          horizontalAlignment = Alignment.CenterHorizontally
+                      ) {
+                          DisplayFrames(
+                              viewModel,
+                              "https://users.metropolia.fi/~tuomheik/test/test.png"
+                          )
+                      }
+                  }
+              }*/
         }
     }
 }
@@ -154,7 +153,7 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
 }*/
 
 @Composable
-fun TestPhoto(){
+fun TestPhoto() {
     val imagePainter = painterResource(id = androidx.appcompat.R.drawable.abc_ic_clear_material)
     Image(
         painter = imagePainter,
@@ -165,8 +164,43 @@ fun TestPhoto(){
     )
 }
 
+@Composable
+fun GetModelsTest(model: ArtisticViewModel) {
+    val models = model.getAllModels().observeAsState(listOf())
+    // Initialize a placeholder BitMap
+    val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+    var modelBitMap by remember { mutableStateOf(initData) }
+    println(":DD $models")
+    val urls = listOf("sofa", "tableLamp")
+
+    urls.forEach {
+        LaunchedEffect(urls) {
+            val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
+            println(":DDD $bitmap")
+            val modelImage = getByteFromBitMap(bitmap)
+            model.addNewModel(
+                "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
+                it,
+                modelImage
+            )
+        }
+    }
+    models.value.forEach {
+        if (it.image != null) {
+            modelBitMap =
+                BitmapFactory.decodeByteArray(it.image, 0, it.image.size)
+        }
+        Row {
+            Image(
+                bitmap = modelBitMap.asImageBitmap(),
+                contentDescription = ""
+            )
+        }
+    }
+}
+
 // Function for getting a BitMap from the given URL
-private suspend fun getFrame(url: String): Bitmap =
+private suspend fun getImage(url: String): Bitmap =
     withContext(Dispatchers.IO) {
         val imageUrl = URL(url)
         val connection = imageUrl.openConnection()

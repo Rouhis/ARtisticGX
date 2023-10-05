@@ -20,8 +20,8 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
     }
 
     // Add a new model to the DB
-    fun addNewModel(modelURL: String) {
-        val newModel = Models(0, modelURL, null, null)
+    fun addNewModel(modelURL: String, modelName: String, modelImage: ByteArray) {
+        val newModel = Models(0, modelURL, modelName, modelImage)
         viewModelScope.launch { db.ModelsDao().addModel(newModel)}
     }
 }
