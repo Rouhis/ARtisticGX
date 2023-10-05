@@ -11,6 +11,7 @@ import androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,13 +31,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.NavController
 
 
 @Composable
-fun QRScreen(){
+fun QRScreen(navController: NavController){
 
-    var code by remember{
-        mutableStateOf("")
+    var code: String? by remember{
+        mutableStateOf(null)
     }
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -78,6 +80,7 @@ fun QRScreen(){
             previewView
         },
             modifier = Modifier.weight(1f))
-        Text(text = code, fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().padding(32.dp))
+        Text(text = code ?: "", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().padding(32.dp)
+            .clickable { navController.navigate("ARScreen/${code ?: "ferrari"}") })
     }
 }

@@ -8,10 +8,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,12 +23,18 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.artisticgx.data.ArtisticViewModel
 import com.example.artisticgx.ui.theme.ARtisticGXTheme
 import kotlinx.coroutines.Dispatchers
@@ -35,15 +44,17 @@ import java.net.URL
 
 class MainActivity : ComponentActivity() {
     private val viewModel: ArtisticViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val navController = rememberNavController()
             val currentModel = remember {
-                mutableStateOf("poster")
+                mutableStateOf("ferrari")
             }
-            QRScreen()
-          //ARScreen(currentModel.value)
-          /*  ARtisticGXTheme {
+          //  QRScreen()
+         // ARScreen(currentModel.value)
+            ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -52,24 +63,34 @@ class MainActivity : ComponentActivity() {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        DisplayFrames(
-                            viewModel,
-                            "https://users.metropolia.fi/~tuomheik/test/test.png"
+                        AppNavigation(
+                            controller = navController,
+                            viewModel = viewModel,
+                            navController = navController
                         )
+                       /* DisplayFrames(
+                            viewModel,
+                            "https://users.metropolia.fi/~tuomheik/test/frame1.png",
+                            navController = navController
+                        )*/
                     }
                 }
-            }*/
+            }
         }
     }
 }
 
 // Create buttons for adding frames to DB and and showing a frame from DB
 @Composable
-fun DisplayFrames(model: ArtisticViewModel, url: String) {
-    // Observe the LiveData
+fun DisplayFrames(model: ArtisticViewModel, url: String,navController: NavController) {
+ /*   // Observe the LiveData
     val newFrame = model.getFrame().observeAsState()
     val frames = model.getAllFrames().observeAsState(listOf())
     val newPicture = model.getPicture().observeAsState()
+
+    val currentModel = remember {
+        mutableStateOf("ferrari")
+    }
 
     // Initialize a placeholder BitMap
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
@@ -116,26 +137,36 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
     } else {
         println("Values are not the same")
     }
-
+*/
     Text("Hello World")
     Row {
+        Column {
+
+
         Button(
             onClick = {
-                model.addNewFrame(frameByteArray) },
-            modifier = Modifier.padding(all = 8.dp)
+           //     model.addNewFrame(frameByteArray)
+                      }
         ) {
             Text("Add frame to db")
         }
         Button(
                 onClick = {
-                    model.addNewPicture(pictureByteArray) },
-                modifier = Modifier.padding(all = 8.dp)
+            //        model.addNewPicture(pictureByteArray)
+                          }
         ) {
             Text("Add picture to db")
         }
+        Button(onClick = { navController.navigate("QRScreen")}) {
+            Text("Open QRcamera")
+        }
+        Button(onClick = { navController.navigate("ARScreen")}) {
+            Text("Open ARScreen")
+        }
+        }
     }
     // Display the frame from the DB
-    Box(modifier = Modifier)
+ /*   Box(modifier = Modifier)
     {
         // First Image (bitmap from DB)
         Image(
@@ -145,9 +176,29 @@ fun DisplayFrames(model: ArtisticViewModel, url: String) {
 
         )
 
+    }*/
+
+
+}
+
+
+@Composable
+fun AppNavigation(controller: NavHostController, viewModel: ArtisticViewModel, navController: NavController) {
+
+    NavHost(controller, startDestination = "DisplayFrames") {
+        composable("DisplayFrames") {
+            DisplayFrames(viewModel,"https://users.metropolia.fi/~tuomheik/test/frame1.png", navController)
+        }
+        composable("QRScreen") { navBackStackEntry ->
+         QRScreen(navController)
+        }
+        composable("ARScreen"){navBackStackEntry ->
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari")
+        }
+        composable("ARScreen/{model}"){navBackStackEntry ->
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari")
+        }
     }
-
-
 }
 
 @Composable
