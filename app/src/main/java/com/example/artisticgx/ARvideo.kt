@@ -1,5 +1,6 @@
 package com.example.artisticgx
 
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -17,9 +18,10 @@ import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.Node
 import io.github.sceneview.node.VideoNode
+import kotlinx.coroutines.delay
 
 @Composable
-fun Arframe(model:String) {
+fun Arframe(frame: String, video: String) {
     val nodes = remember {
         mutableListOf<Node>()
     }
@@ -29,7 +31,18 @@ fun Arframe(model:String) {
     val modelNode2 = remember {
         mutableStateOf<VideoNode?>(null)
     }
-    val mediaPlayer: MediaPlayer = MediaPlayer.create(MyApp.appContext,R.raw.ad)
+    val url = "https://users.metropolia.fi/~eeturo/videos/$video.mp4"
+    val mediaPlayer = MediaPlayer().apply {
+        setAudioAttributes(
+            AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .build()
+        )
+        setDataSource(url)
+        prepare() // might take long! (for buffering, etc)
+        start()
+    }
     Box(modifier = Modifier.fillMaxSize()){
         ARScene(
             modifier = Modifier.fillMaxSize(),
@@ -39,9 +52,9 @@ fun Arframe(model:String) {
                 arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 arSceneView.planeRenderer.isShadowReceiver = false
                 arSceneView.planeFindingEnabled
-                modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.PLANE_VERTICAL, ).apply {
+                modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.PLANE_VERTICAL ).apply {
                     loadModelGlbAsync(
-                        glbFileLocation = "frame.glb",
+                        glbFileLocation = "$frame.glb",
                         scaleToUnits = 1f,
                         centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
 
@@ -51,7 +64,6 @@ fun Arframe(model:String) {
                 modelNode2.value = VideoNode(arSceneView.engine, glbFileLocation = "plane.glb",player = mediaPlayer ,scaleToUnits = 0.8f, centerOrigin = Position(x = 0.0f, y = 0.0f, z = 30f)).apply {
                     rotation = Rotation(0f, 0f, 180f)
 
-                        mediaPlayer.start()
                 }
 
                 nodes.add(modelNode.value!!)
@@ -64,7 +76,7 @@ fun Arframe(model:String) {
 
             },
             onTap = {
-
+                mediaPlayer.start()
             }
 
         )

@@ -40,9 +40,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             var currentModel = remember {
-                mutableStateOf("frame")
+                mutableStateOf("kolibri")
             }
-          Arframe(model = currentModel.value)
+          Arframe(frame = "frame", video = "kolibri")
           /*  ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
