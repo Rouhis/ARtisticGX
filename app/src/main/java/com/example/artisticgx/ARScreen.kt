@@ -113,9 +113,9 @@ fun ARScreen(model:String, navController: NavController) {
 }
 
 
-@Composable
+/*@Composable
 fun Painting() {
     Image(painter = painterResource(id = R.drawable.testpoto), contentDescription = "asd")
-}
+}*/
 
 
