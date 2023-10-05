@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.artisticgx.data.ArtisticViewModel
 import com.example.artisticgx.ui.theme.ARtisticGXTheme
+import io.github.sceneview.ar.arcore.ArFrame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -39,9 +40,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             var currentModel = remember {
-                mutableStateOf("ferrari")
+                mutableStateOf("frame")
             }
-          ARvideo(model = currentModel.value)
+          Arframe(model = currentModel.value)
           /*  ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(

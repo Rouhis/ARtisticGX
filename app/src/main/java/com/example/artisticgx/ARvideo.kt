@@ -1,43 +1,68 @@
 package com.example.artisticgx
 
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.google.ar.core.Config
-import dev.romainguy.kotlin.math.rotation
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
-import io.github.sceneview.ar.node.ArNode
 import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
+import io.github.sceneview.node.Node
 import io.github.sceneview.node.VideoNode
 
 @Composable
-fun ARvideo(model:String) {
+fun Arframe(model:String) {
     val nodes = remember {
-        mutableListOf<VideoNode>()
+        mutableListOf<Node>()
     }
-    var videoNode: VideoNode
-
-    var mediaPlayer: MediaPlayer
+    val modelNode = remember {
+        mutableStateOf<ArModelNode?>(null)
+    }
+    val modelNode2 = remember {
+        mutableStateOf<VideoNode?>(null)
+    }
+    val mediaPlayer: MediaPlayer = MediaPlayer.create(MyApp.appContext,R.raw.ad)
     Box(modifier = Modifier.fillMaxSize()){
         ARScene(
             modifier = Modifier.fillMaxSize(),
-            nodes = nodes,
+            nodes = nodes ,
             planeRenderer = true,
             onCreate =  {arSceneView ->
-                mediaPlayer = MediaPlayer.create(MyApp.appContext,R.raw.ad)
-                videoNode = VideoNode(arSceneView.engine, glbFileLocation = "plane.glb",player = mediaPlayer ,scaleToUnits = 0.5f, centerOrigin = Position(x = 0.0f, y = 0.0f, z = 30.0f))
-                nodes.add(videoNode)
-                mediaPlayer.start()
+                arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
+                arSceneView.planeRenderer.isShadowReceiver = false
+                arSceneView.planeFindingEnabled
+                modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.PLANE_VERTICAL, ).apply {
+                    loadModelGlbAsync(
+                        glbFileLocation = "frame.glb",
+                        scaleToUnits = 1f,
+                        centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
 
-            }
-            ,
+                        ){
+                    }
+                }
+                
+                modelNode2.value = VideoNode(arSceneView.engine, glbFileLocation = "plane.glb",player = mediaPlayer ,scaleToUnits = 0.8f, centerOrigin = Position(x = 0.0f, y = 0.0f, z = 30f)).apply {
+                    PlacementMode.PLANE_VERTICAL
+
+                    rotation = Rotation(0f, 0f, 180f)
+
+                        mediaPlayer.start()
+                }
+                nodes.add(modelNode.value!!)
+                nodes.add(modelNode2.value!!)
+
+                Log.d("tuhma", "${modelNode.value}")
+                Log.d("tuhma", "$nodes")
+
+            },
             onSessionCreate = {
 
             },
@@ -46,6 +71,12 @@ fun ARvideo(model:String) {
             }
 
         )
+        LaunchedEffect(key1 = "$model"){
+            nodes.add(modelNode.value!!)
+            nodes.add(modelNode2.value!!)
+
+            Log.e("errorloading","ERROR")
+        }
 
     }
 
