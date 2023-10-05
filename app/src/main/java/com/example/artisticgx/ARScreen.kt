@@ -1,5 +1,6 @@
 package com.example.artisticgx
 
+import android.media.Image
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ import io.github.sceneview.node.Node
 
 @Composable
 fun ARScreen(model:String) {
+    var armodel = model
     val nodes = remember {
         mutableListOf<ArNode>()
     }
@@ -35,46 +37,39 @@ fun ARScreen(model:String) {
             modifier = Modifier.fillMaxSize(),
             nodes = nodes,
             planeRenderer = true,
-            onCreate = {arSceneView ->
+            onCreate =  {arSceneView ->
                 arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 arSceneView.planeRenderer.isShadowReceiver = false
                 arSceneView.planeFindingEnabled
-                modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.INSTANT, ).apply {
+                modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.PLANE_VERTICAL, ).apply {
                     loadModelGlbAsync(
-                        glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$model.glb",
-                        scaleToUnits = 0.8f,
+                        glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$armodel.glb",
+                        scaleToUnits = 1f,
                         centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
 
-                    ){
+                        ){
 
-                        rotation= Rotation(80f,0f,0f)
-                        setScreenSpaceContactShadows(false)
                     }
                 }
                 nodes.add(modelNode.value!!)
             },
             onSessionCreate = {
                 planeRenderer.isVisible = true
+            },
+            onTap = {
+
             }
+
         )
 
     }
 
-    LaunchedEffect(key1 = model){
-        modelNode.value?.loadModelGlbAsync(
-            glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$model.glb",
-            scaleToUnits = 0.8f,
 
-        )
-        Log.e("errorloading","ERROR")
-    }
 
 }
 
 
-@Composable
-fun Painting() {
-    Image(painter = painterResource(id = R.drawable.testpoto), contentDescription = "asd")
-}
+
+
 
 
