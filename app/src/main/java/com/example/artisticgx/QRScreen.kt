@@ -111,6 +111,18 @@ fun QRScreen(navController: NavController) {
                 }
         )
 
+        Image(painter = painterResource(id = R.drawable.lista2), contentDescription = "Lista",
+            modifier = Modifier
+                .size(60.dp)
+                .padding(10.dp)
+                .clickable {
+                    navController.navigate("GetModelsTest")
+                }
+                .align(Alignment.TopEnd)
+        )
+
+
+
 
 
 
@@ -118,7 +130,7 @@ fun QRScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .align(Alignment.BottomCenter) 
+                .align(Alignment.BottomCenter)
                 .background(color = Color.Gray, shape = RoundedCornerShape(8.dp))
                 .clickable {
                     navController.navigate("ARScreen/${code ?: "ferrari"}")

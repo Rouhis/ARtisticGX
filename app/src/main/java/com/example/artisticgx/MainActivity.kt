@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -124,32 +126,62 @@ fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
             }
         }
     }
-    Box(modifier = Modifier.clickable { })
-    {
-        LazyVerticalGrid(
-            GridCells.Adaptive(minSize = 128.dp),
-            modifier = Modifier.padding(16.dp)
-        ) {
-            items(models.value) {
-                val imageBitMap = remember {
-                    BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
-                }
-                modelBitMap = imageBitMap
-                Box(
+    Box(modifier = Modifier) {
+
+            Image(painter = painterResource(id = R.drawable.qr_code_png5),
+                contentDescription = "qrkuva",
+                modifier = Modifier
+                    .size(60.dp)
+                    .padding(10.dp)
+                    .clickable {
+                        navController.navigate("QRScreen")
+                    }
+            )
+
+
+
+                Image(painter = painterResource(id = R.drawable.kivaa),
+                    contentDescription = "Ar",
                     modifier = Modifier
-                        .padding(8.dp)
-                ) {
-                    Image(
-                        bitmap = modelBitMap.asImageBitmap(),
-                        contentDescription = "Bitmap image",
+                        .size(60.dp)
+                        .padding(10.dp)
+                        .clickable {
+                            navController.navigate("ARScreen")
+                        }
+                        .align(Alignment.TopEnd)
+                )
+
+
+
+        Box(modifier = Modifier
+            .padding(0.dp,30.dp)
+            )
+        {
+            LazyVerticalGrid(
+                GridCells.Adaptive(minSize = 128.dp),
+                modifier = Modifier.padding(16.dp)
+            ) {
+                items(models.value) {
+                    val imageBitMap = remember {
+                        BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
+                    }
+                    modelBitMap = imageBitMap
+                    Box(
                         modifier = Modifier
-                            .size(200.dp)
-                            .clickable { navController.navigate("ArFrame/${"frame"}/${"kolibri"}") }
-                    )
+                            .padding(8.dp)
+                    ) {
+                        Image(
+                            bitmap = modelBitMap.asImageBitmap(),
+                            contentDescription = "Bitmap image",
+                            modifier = Modifier
+                                .size(200.dp)
+                                .clickable { navController.navigate("ArFrame/${"frame"}/${"kolibri"}") }
+                        )
+                    }
                 }
             }
-        }
 
+        }
     }
 }
 
