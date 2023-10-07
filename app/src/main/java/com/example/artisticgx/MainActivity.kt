@@ -7,6 +7,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -150,7 +151,8 @@ fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
                         contentDescription = "Bitmap image",
                         modifier = Modifier
                             .size(200.dp)
-                            .clickable { navController.navigate("ARScreen/${it.modelUrl ?: "https://users.metropolia.fi/~tuomheik/test/sofa.glb"}") }
+                            .clickable {navController.navigate("ARScreen/${it.name}")
+                                        Log.i("tiedot", "ARScreen/${it.name}")}
                     )
                 }
             }
