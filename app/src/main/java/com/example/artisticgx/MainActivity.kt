@@ -91,10 +91,10 @@ fun AppNavigation(controller: NavHostController, viewModel: ArtisticViewModel, n
          QRScreen(navController)
         }
         composable("ARScreen"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "https://users.metropolia.fi/~tuomheik/test/sofa.glb", navController)
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "", navController)
         }
         composable("ARScreen/{model}"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "https://users.metropolia.fi/~tuomheik/test/sofa.glb", navController)
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "", navController)
         }
         composable("ArFrame/{frame}/{video}") { navBackStackEntry ->
             navBackStackEntry.arguments?.getString("video")
