@@ -60,7 +60,7 @@ fun ARScreen(model:String, navController: NavController) {
                 modelNode.value =
                     ArModelNode(arSceneView.engine, PlacementMode.PLANE_VERTICAL,).apply {
                         loadModelGlbAsync(
-                            glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$model.glb",
+                            glbFileLocation = "https://users.metropolia.fi/~tuomheik/test/$model.glb",
                             scaleToUnits = 0.8f,
                             centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
 

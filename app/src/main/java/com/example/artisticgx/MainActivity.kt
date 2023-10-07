@@ -1,7 +1,11 @@
 package com.example.artisticgx
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -50,7 +54,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val currentModel = remember {
-                mutableStateOf("ferrari")
+                mutableStateOf("sofa")
             }
           //  QRScreen()
          // ARScreen(currentModel.value)
@@ -86,10 +90,10 @@ fun AppNavigation(controller: NavHostController, viewModel: ArtisticViewModel, n
          QRScreen(navController)
         }
         composable("ARScreen"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari", navController)
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "https://users.metropolia.fi/~tuomheik/test/sofa.glb", navController)
         }
         composable("ARScreen/{model}"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari", navController)
+            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "https://users.metropolia.fi/~tuomheik/test/sofa.glb", navController)
         }
         composable("ArFrame/{frame}/{video}") { navBackStackEntry ->
             navBackStackEntry.arguments?.getString("video")
@@ -108,18 +112,20 @@ fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
     val urls = listOf("sofa", "tableLamp", "lillyChair", "woodenCabinet")
 
     if (isEmpty.value != null) {
-        if (isEmpty.value!! < urls.size) {
-            println("toimii xdd")
-            urls.forEach {
-                LaunchedEffect(urls) {
-                    val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
-                    println(":DDD $bitmap")
-                    val modelImage = getByteFromBitMap(bitmap)
-                    model.addNewModel(
-                        "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
-                        it,
-                        modelImage
-                    )
+        if (isNetworkAvailable(MyApp.appContext)) {
+            if (isEmpty.value!! < urls.size) {
+                println("toimii xdd")
+                urls.forEach {
+                    LaunchedEffect(urls) {
+                        val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
+                        println(":DDD $bitmap")
+                        val modelImage = getByteFromBitMap(bitmap)
+                        model.addNewModel(
+                            "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
+                            it,
+                            modelImage
+                        )
+                    }
                 }
             }
         }
@@ -144,7 +150,7 @@ fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
                         contentDescription = "Bitmap image",
                         modifier = Modifier
                             .size(200.dp)
-                            .clickable { navController.navigate("ArFrame/${"frame"}/${"kolibri"}") }
+                            .clickable { navController.navigate("ARScreen/${it.modelUrl ?: "https://users.metropolia.fi/~tuomheik/test/sofa.glb"}") }
                     )
                 }
             }
@@ -168,6 +174,33 @@ private fun getByteFromBitMap(bitmap: Bitmap): ByteArray {
     bos.reset()
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos)
     return bos.toByteArray()
+}
+
+fun isNetworkAvailable(context: Context?): Boolean {
+    if (context == null) return false
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            when {
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
+                    return true
+                }
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
+                    return true
+                }
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> {
+                    return true
+                }
+            }
+        }
+    } else {
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        if (activeNetworkInfo != null && activeNetworkInfo.isConnected) {
+            return true
+        }
+    }
+    return false
 }
 
 @Preview(showBackground = true)
