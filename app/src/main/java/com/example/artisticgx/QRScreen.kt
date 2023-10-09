@@ -133,7 +133,7 @@ fun QRScreen(navController: NavController) {
                 .align(Alignment.BottomCenter)
                 .background(color = Color.Gray, shape = RoundedCornerShape(8.dp))
                 .clickable {
-                    navController.navigate("ARScreen/${code ?: "ferrari"}")
+                    navController.navigate("ARScreen/${code ?: "sofa"}")
                 },
             contentAlignment = Alignment.Center
         ) {

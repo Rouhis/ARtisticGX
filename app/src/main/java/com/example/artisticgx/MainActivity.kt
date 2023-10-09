@@ -1,8 +1,13 @@
 package com.example.artisticgx
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -52,10 +57,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
             val currentModel = remember {
-                mutableStateOf("ferrari")
+                mutableStateOf("sofa")
             }
-          //  QRScreen()
-         // ARScreen(currentModel.value)
+            //  QRScreen()
+            // ARScreen(currentModel.value)
             ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -78,30 +83,39 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation(controller: NavHostController, viewModel: ArtisticViewModel, navController: NavController) {
+fun AppNavigation(
+    controller: NavHostController,
+    viewModel: ArtisticViewModel,
+    navController: NavController
+) {
 
     NavHost(controller, startDestination = "ARScreen") {
         composable("GetModelsTest") {
-            GetModelsTest(viewModel, navController)
+            ModelList(viewModel, navController)
         }
         composable("QRScreen") { navBackStackEntry ->
-         QRScreen(navController)
+            QRScreen(navController)
         }
-        composable("ARScreen"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari", navController)
+        composable("ARScreen") { navBackStackEntry ->
+            ARScreen(model = navBackStackEntry.arguments?.getString("model") ?: "", navController)
         }
-        composable("ARScreen/{model}"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "ferrari", navController)
+        composable("ARScreen/{model}") { navBackStackEntry ->
+            ARScreen(model = navBackStackEntry.arguments?.getString("model") ?: "", navController)
         }
         composable("ArFrame/{frame}/{video}") { navBackStackEntry ->
             navBackStackEntry.arguments?.getString("video")
-                ?.let { Arframe(frame = navBackStackEntry.arguments?.getString("frame")!!, video = it) }
+                ?.let {
+                    Arframe(
+                        frame = navBackStackEntry.arguments?.getString("frame")!!,
+                        video = it
+                    )
+                }
         }
     }
 }
 
 @Composable
-fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
+fun ModelList(model: ArtisticViewModel, navController: NavController) {
     val isEmpty = model.isEmpty().observeAsState()
     val models = model.getAllModels().observeAsState(listOf())
     // Initialize a placeholder BitMap
@@ -109,53 +123,18 @@ fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
     var modelBitMap by remember { mutableStateOf(initData) }
     val urls = listOf("sofa", "tableLamp", "lillyChair", "woodenCabinet")
 
-    if (isEmpty.value != null) {
-        if (isEmpty.value!! < urls.size) {
-            println("toimii xdd")
-            urls.forEach {
+    if (isNetworkAvailable(MyApp.appContext)) {
+        if (isEmpty.value != null) {
+            if (isEmpty.value!! < urls.size) {
+                println("toimii xdd")
                 LaunchedEffect(urls) {
-                    val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
-                    println(":DDD $bitmap")
-                    val modelImage = getByteFromBitMap(bitmap)
-                    model.addNewModel(
-                        "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
-                        it,
-                        modelImage
-                    )
+                    getAndSaveModels(model, urls)
                 }
             }
         }
-    }
-    Box(modifier = Modifier) {
-
-            Image(painter = painterResource(id = R.drawable.qr_code_png5),
-                contentDescription = "qrkuva",
-                modifier = Modifier
-                    .size(60.dp)
-                    .padding(10.dp)
-                    .clickable {
-                        navController.navigate("QRScreen")
-                    }
-            )
 
 
-
-                Image(painter = painterResource(id = R.drawable.kivaa),
-                    contentDescription = "Ar",
-                    modifier = Modifier
-                        .size(60.dp)
-                        .padding(10.dp)
-                        .clickable {
-                            navController.navigate("ARScreen")
-                        }
-                        .align(Alignment.TopEnd)
-                )
-
-
-
-        Box(modifier = Modifier
-            .padding(0.dp,30.dp)
-            )
+        Box(modifier = Modifier.clickable { })
         {
             LazyVerticalGrid(
                 GridCells.Adaptive(minSize = 128.dp),
@@ -175,15 +154,21 @@ fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
                             contentDescription = "Bitmap image",
                             modifier = Modifier
                                 .size(200.dp)
-                                .clickable { navController.navigate("ArFrame/${"frame"}/${"kolibri"}") }
+                                .clickable {
+                                    navController.navigate("ARScreen/${it.name}")
+                                    Log.i("tiedot", "ARScreen/${it.name}")
+                                }
                         )
                     }
                 }
             }
 
         }
+    }else{
+        noNetwork()
     }
 }
+
 
 // Function for getting a BitMap from the given URL
 private suspend fun getImage(url: String): Bitmap =
@@ -200,6 +185,50 @@ private fun getByteFromBitMap(bitmap: Bitmap): ByteArray {
     bos.reset()
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, bos)
     return bos.toByteArray()
+}
+
+private suspend fun getAndSaveModels(model: ArtisticViewModel, urls: List<String>) {
+    urls.forEach {
+        val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
+        println(":DDD $bitmap")
+        val modelImage = getByteFromBitMap(bitmap)
+        model.addNewModel(
+            "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
+            it,
+            modelImage
+        )
+    }
+}
+
+fun isNetworkAvailable(context: Context?): Boolean {
+    if (context == null) return false
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        if (capabilities != null) {
+            when {
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
+                    return true
+                }
+
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
+                    return true
+                }
+
+                capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> {
+                    return true
+                }
+            }
+        }
+    } else {
+        val activeNetworkInfo = connectivityManager.activeNetworkInfo
+        if (activeNetworkInfo != null && activeNetworkInfo.isConnected) {
+            return true
+        }
+    }
+    return false
 }
 
 @Preview(showBackground = true)
