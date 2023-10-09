@@ -130,38 +130,43 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
                 }
             }
         }
-    }
-    Box(modifier = Modifier.clickable { })
-    {
-        LazyVerticalGrid(
-            GridCells.Adaptive(minSize = 128.dp),
-            modifier = Modifier.padding(16.dp)
-        ) {
-            items(models.value) {
-                val imageBitMap = remember {
-                    BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
-                }
-                modelBitMap = imageBitMap
-                Box(
-                    modifier = Modifier
-                        .padding(8.dp)
-                ) {
-                    Image(
-                        bitmap = modelBitMap.asImageBitmap(),
-                        contentDescription = "Bitmap image",
+
+
+        Box(modifier = Modifier.clickable { })
+        {
+            LazyVerticalGrid(
+                GridCells.Adaptive(minSize = 128.dp),
+                modifier = Modifier.padding(16.dp)
+            ) {
+                items(models.value) {
+                    val imageBitMap = remember {
+                        BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
+                    }
+                    modelBitMap = imageBitMap
+                    Box(
                         modifier = Modifier
-                            .size(200.dp)
-                            .clickable {
-                                navController.navigate("ARScreen/${it.name}")
-                                Log.i("tiedot", "ARScreen/${it.name}")
-                            }
-                    )
+                            .padding(8.dp)
+                    ) {
+                        Image(
+                            bitmap = modelBitMap.asImageBitmap(),
+                            contentDescription = "Bitmap image",
+                            modifier = Modifier
+                                .size(200.dp)
+                                .clickable {
+                                    navController.navigate("ARScreen/${it.name}")
+                                    Log.i("tiedot", "ARScreen/${it.name}")
+                                }
+                        )
+                    }
                 }
             }
-        }
 
+        }
+    }else{
+        noNetwork()
     }
 }
+
 
 // Function for getting a BitMap from the given URL
 private suspend fun getImage(url: String): Bitmap =
