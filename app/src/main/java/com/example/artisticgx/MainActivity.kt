@@ -89,7 +89,7 @@ fun AppNavigation(
 
     NavHost(controller, startDestination = "ARScreen") {
         composable("GetModelsTest") {
-            GetModelsTest(viewModel, navController)
+            ModelList(viewModel, navController)
         }
         composable("QRScreen") { navBackStackEntry ->
             QRScreen(navController)
