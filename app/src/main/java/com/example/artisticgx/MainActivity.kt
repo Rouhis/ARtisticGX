@@ -57,8 +57,8 @@ class MainActivity : ComponentActivity() {
             val currentModel = remember {
                 mutableStateOf("sofa")
             }
-          //  QRScreen()
-         // ARScreen(currentModel.value)
+            //  QRScreen()
+            // ARScreen(currentModel.value)
             ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -81,30 +81,39 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppNavigation(controller: NavHostController, viewModel: ArtisticViewModel, navController: NavController) {
+fun AppNavigation(
+    controller: NavHostController,
+    viewModel: ArtisticViewModel,
+    navController: NavController
+) {
 
     NavHost(controller, startDestination = "ARScreen") {
         composable("GetModelsTest") {
             GetModelsTest(viewModel, navController)
         }
         composable("QRScreen") { navBackStackEntry ->
-         QRScreen(navController)
+            QRScreen(navController)
         }
-        composable("ARScreen"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "https://users.metropolia.fi/~tuomheik/test/sofa.glb", navController)
+        composable("ARScreen") { navBackStackEntry ->
+            ARScreen(model = navBackStackEntry.arguments?.getString("model") ?: "", navController)
         }
-        composable("ARScreen/{model}"){navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model")?: "https://users.metropolia.fi/~tuomheik/test/sofa.glb", navController)
+        composable("ARScreen/{model}") { navBackStackEntry ->
+            ARScreen(model = navBackStackEntry.arguments?.getString("model") ?: "", navController)
         }
         composable("ArFrame/{frame}/{video}") { navBackStackEntry ->
             navBackStackEntry.arguments?.getString("video")
-                ?.let { Arframe(frame = navBackStackEntry.arguments?.getString("frame")!!, video = it) }
+                ?.let {
+                    Arframe(
+                        frame = navBackStackEntry.arguments?.getString("frame")!!,
+                        video = it
+                    )
+                }
         }
     }
 }
 
 @Composable
-fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
+fun ModelList(model: ArtisticViewModel, navController: NavController) {
     val isEmpty = model.isEmpty().observeAsState()
     val models = model.getAllModels().observeAsState(listOf())
     // Initialize a placeholder BitMap
@@ -112,21 +121,12 @@ fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
     var modelBitMap by remember { mutableStateOf(initData) }
     val urls = listOf("sofa", "tableLamp", "lillyChair", "woodenCabinet")
 
-    if (isEmpty.value != null) {
-        if (isNetworkAvailable(MyApp.appContext)) {
+    if (isNetworkAvailable(MyApp.appContext)) {
+        if (isEmpty.value != null) {
             if (isEmpty.value!! < urls.size) {
                 println("toimii xdd")
-                urls.forEach {
-                    LaunchedEffect(urls) {
-                        val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
-                        println(":DDD $bitmap")
-                        val modelImage = getByteFromBitMap(bitmap)
-                        model.addNewModel(
-                            "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
-                            it,
-                            modelImage
-                        )
-                    }
+                LaunchedEffect(urls) {
+                    getAndSaveModels(model, urls)
                 }
             }
         }
@@ -151,8 +151,10 @@ fun GetModelsTest(model: ArtisticViewModel, navController: NavController) {
                         contentDescription = "Bitmap image",
                         modifier = Modifier
                             .size(200.dp)
-                            .clickable {navController.navigate("ARScreen/${it.name}")
-                                        Log.i("tiedot", "ARScreen/${it.name}")}
+                            .clickable {
+                                navController.navigate("ARScreen/${it.name}")
+                                Log.i("tiedot", "ARScreen/${it.name}")
+                            }
                     )
                 }
             }
@@ -178,19 +180,36 @@ private fun getByteFromBitMap(bitmap: Bitmap): ByteArray {
     return bos.toByteArray()
 }
 
+private suspend fun getAndSaveModels(model: ArtisticViewModel, urls: List<String>) {
+    urls.forEach {
+        val bitmap = getImage("https://users.metropolia.fi/~tuomheik/test/${it}.png")
+        println(":DDD $bitmap")
+        val modelImage = getByteFromBitMap(bitmap)
+        model.addNewModel(
+            "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
+            it,
+            modelImage
+        )
+    }
+}
+
 fun isNetworkAvailable(context: Context?): Boolean {
     if (context == null) return false
-    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val connectivityManager =
+        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        val capabilities =
+            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         if (capabilities != null) {
             when {
                 capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> {
                     return true
                 }
+
                 capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> {
                     return true
                 }
+
                 capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> {
                     return true
                 }
