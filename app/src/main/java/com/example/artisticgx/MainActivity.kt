@@ -95,7 +95,7 @@ fun AppNavigation(
     navController: NavController
 ) {
 
-    NavHost(controller, startDestination = "ARScreen") {
+    NavHost(controller, startDestination = "QRScreen") {
         composable("GetModelsTest") {
             ModelList(viewModel, navController)
         }

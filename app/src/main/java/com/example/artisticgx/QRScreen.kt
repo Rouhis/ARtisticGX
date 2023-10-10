@@ -121,11 +121,6 @@ fun QRScreen(navController: NavController) {
                 .align(Alignment.TopEnd)
         )
 
-
-
-
-
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -133,7 +128,10 @@ fun QRScreen(navController: NavController) {
                 .align(Alignment.BottomCenter)
                 .background(color = Color.Gray, shape = RoundedCornerShape(8.dp))
                 .clickable {
-                    navController.navigate("ARScreen/${code ?: "sofa"}")
+                    if (code == "frame"){
+                        navController.navigate("ARFrame/${code}")
+                    }else{navController.navigate("ARScreen/${code}")}
+
                 },
             contentAlignment = Alignment.Center
         ) {
