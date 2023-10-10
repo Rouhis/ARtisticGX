@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
             var currentModel = remember {
                 mutableStateOf("kolibri")
             }
-          Arframe(frame = "frame", video = "kolibri")
+          Arframe(frame = "taulu", video = "kolibri")
           /*  ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
