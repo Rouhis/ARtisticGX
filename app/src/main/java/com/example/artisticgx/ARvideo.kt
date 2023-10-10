@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
 import com.google.ar.core.Config
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
@@ -26,7 +27,7 @@ import io.github.sceneview.node.Node
 import io.github.sceneview.node.VideoNode
 
 @Composable
-fun Arframe(frame: String) {
+fun Arframe(frame: String, navController: NavController) {
     val context = LocalContext.current
     val nodes = remember {
         mutableListOf<Node>()
@@ -81,7 +82,7 @@ fun Arframe(frame: String) {
                 modelNode.value =
                     ArModelNode(arSceneView.engine, PlacementMode.PLANE_VERTICAL).apply {
                         loadModelGlbAsync(
-                            glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$frame.glb",
+                            glbFileLocation = "https://users.metropolia.fi/~eeturo/frames/$frame.glb",
                             scaleToUnits = 1f,
                             centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
                         ) {

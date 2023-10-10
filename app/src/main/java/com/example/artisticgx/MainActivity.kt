@@ -25,13 +25,9 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -112,14 +108,8 @@ fun AppNavigation(
         composable("ARScreen/{model}") { navBackStackEntry ->
             ARScreen(model = navBackStackEntry.arguments?.getString("model") ?: "", navController)
         }
-        composable("ArFrame/{frame}/{video}") { navBackStackEntry ->
-            navBackStackEntry.arguments?.getString("video")
-                ?.let {
-                    Arframe(
-                        frame = navBackStackEntry.arguments?.getString("frame")!!,
-                        video = it
-                    )
-                }
+        composable("ARFrame/{frame}") { navBackStackEntry ->
+            Arframe(frame = navBackStackEntry.arguments?.getString("frame") ?: "", navController)
         }
     }
 }
@@ -269,8 +259,8 @@ fun FrameList(model: ArtisticViewModel, navController: NavController){
                                     showConfirmationDialog(navController.context, navController)
 
                                 } else {
-                                    navController.navigate("ArFrame/${it.name}/kolibri")
-                                    Log.i("tiedot", "ArFrame/{frame}/{kolibri}")
+                                    navController.navigate("ArFrame/${it.name}")
+                                    Log.i("tiedot", "ArFrame/{frame}")
                                 }
 
                             }
