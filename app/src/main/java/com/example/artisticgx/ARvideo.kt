@@ -111,7 +111,9 @@ fun Arframe(frame: String, navController: NavController) {
 
             },
             onTap = {
+
                 mediaPlayer.start()
+
             }
 
         )
@@ -127,5 +129,6 @@ fun Arframe(frame: String, navController: NavController) {
                 Text(text = "Choose video")
             }
 
+        }
     }
-}}
+}
