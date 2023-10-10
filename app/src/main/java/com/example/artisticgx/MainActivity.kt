@@ -170,7 +170,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
 
         }
     }else{
-        noNetwork()
+        noNetwork(navController)
     }
 }
 
@@ -206,8 +206,8 @@ private suspend fun getAndSaveModels(model: ArtisticViewModel, urls: List<String
 }
 fun showConfirmationDialog(context: Context,navController: NavController) {
     val alertDialogBuilder = AlertDialog.Builder(context)
-    alertDialogBuilder.setTitle("Confirmation")
-    alertDialogBuilder.setMessage("Are you sure you want to perform this action?")
+    alertDialogBuilder.setTitle("Are you sure?")
+    alertDialogBuilder.setMessage("Continuing without a model means you won't be able to experience AR content. Are you sure you want to continue without internet connection?")
 
     // Set a positive button and its click listener on the dialog
     alertDialogBuilder.setPositiveButton("Yes") { dialog, which ->
