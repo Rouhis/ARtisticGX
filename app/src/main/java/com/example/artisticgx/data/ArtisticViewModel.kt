@@ -29,4 +29,20 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
         val isEmpty: Flow<Int> = db.ModelsDao().isEmpty()
         return isEmpty.asLiveData()
     }
+
+    fun getAllFrames(): LiveData<List<Frames>>{
+        val allFrames: Flow<List<Frames>> = db.FramesDao().getAll()
+        return allFrames.asLiveData()
+    }
+
+    fun addNewFrame(modelURL: String, modelName: String, modelImage: ByteArray) {
+        val newFrame = Frames(0, modelURL, modelName, modelImage)
+        viewModelScope.launch { db.FramesDao().addFrame(newFrame)}
+    }
+
+    fun framesIsEmpty(): LiveData<Int> {
+        val isEmpty: Flow<Int> = db.FramesDao().isEmpty()
+        return isEmpty.asLiveData()
+    }
+
 }

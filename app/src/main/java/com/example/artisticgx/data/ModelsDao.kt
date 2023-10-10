@@ -20,3 +20,18 @@ interface ModelsDao {
     @Delete
     suspend fun delete(model: Models)
 }
+
+@Dao
+interface FramesDao {
+    @Query("SELECT * FROM Frames")
+    fun getAll(): Flow<List<Frames>>
+
+    @Query("SELECT count(*) FROM Frames")
+    fun isEmpty(): Flow<Int>
+
+    @Insert
+    suspend fun addFrame(frames: Frames)
+
+    @Delete
+    suspend fun delete(frames: Frames)
+}

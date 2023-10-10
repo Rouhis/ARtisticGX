@@ -9,6 +9,7 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -17,13 +18,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -116,13 +127,15 @@ fun AppNavigation(
 @Composable
 fun ModelList(model: ArtisticViewModel, navController: NavController) {
     val isEmpty = model.isEmpty().observeAsState()
-    val models = model.getAllModels().observeAsState(listOf())
-    // Initialize a placeholder BitMap
-    val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-    var modelBitMap by remember { mutableStateOf(initData) }
-    val urls = listOf("sofa", "tableLamp", "lillyChair", "woodenCabinet")
+    val framesIsEmpty = model.framesIsEmpty().observeAsState()
+    val urls = listOf("sofa", "table_lamp", "lilly_chair", "wooden_cabinet")
+    val frameurls = listOf("frame")
+    var selectedOption by remember { mutableStateOf("Furniture") }
+    val context = MyApp.appContext
+    var expanded by remember { mutableStateOf(false) }
 
-    if (isNetworkAvailable(MyApp.appContext)) {
+
+    if (isNetworkAvailable(context)) {
         if (isEmpty.value != null) {
             if (isEmpty.value!! < urls.size) {
                 println("toimii xdd")
@@ -131,46 +144,141 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
                 }
             }
         }
-
-
-        Box(modifier = Modifier.clickable { })
-        {
-            LazyVerticalGrid(
-                GridCells.Adaptive(minSize = 128.dp),
-                modifier = Modifier.padding(16.dp)
-            ) {
-                items(models.value) {
-                    val imageBitMap = remember {
-                        BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
-                    }
-                    modelBitMap = imageBitMap
-                    Box(
-                        modifier = Modifier
-                            .padding(8.dp)
-                    ) {
-                        Image(
-                            bitmap = modelBitMap.asImageBitmap(),
-                            contentDescription = "Bitmap image",
-                            modifier = Modifier
-                                .size(200.dp)
-                                .clickable {
-                                    if(!isNetworkAvailable(MyApp.appContext)){
-                                        showConfirmationDialog(navController.context, navController)
-
-                                    }else{
-                                        navController.navigate("ARScreen/${it.name}")
-                                        Log.i("tiedot", "ARScreen/${it.name}")
-                                    }
-
-                                }
-                        )
-                    }
+        if (framesIsEmpty.value != null) {
+            if (framesIsEmpty.value!! < frameurls.size) {
+                println("toimii xdd")
+                LaunchedEffect(frameurls) {
+                    getAndSaveFrames(model, frameurls)
                 }
             }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentSize(Alignment.Center)
+        ) {
+            Button(onClick = { expanded = true}) {
+                Text(text = "Choose")
+            }
 
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Furniture") },
+                    onClick = {
+                        Toast.makeText(context, "Furniture", Toast.LENGTH_SHORT).show()
+                        selectedOption = "Furniture"
+                        expanded = false
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Paintings") },
+                    onClick = {
+                        Toast.makeText(context, "Paintings", Toast.LENGTH_SHORT).show()
+                        selectedOption = "Paintings"
+                        expanded = false
+                    }
+                )
+            }
+        }
+
+        if (selectedOption == "Furniture") {
+            FurnitureList(model = model, navController = navController)
+        } else if (selectedOption == "Paintings") {
+            FrameList(model = model, navController = navController)
         }
     }else{
         noNetwork(navController)
+    }
+}
+
+@Composable
+fun FurnitureList(model: ArtisticViewModel, navController: NavController){
+    val models = model.getAllModels().observeAsState(listOf())
+    val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+    var modelBitMap by remember { mutableStateOf(initData) }
+
+    Box(modifier = Modifier.padding(50.dp))
+    {
+        LazyVerticalGrid(
+            GridCells.Adaptive(minSize = 128.dp),
+            modifier = Modifier.padding(16.dp)
+        ) {
+            items(models.value) {
+                val imageBitMap = remember {
+                    BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
+                }
+                modelBitMap = imageBitMap
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ) {
+                    Image(
+                        bitmap = modelBitMap.asImageBitmap(),
+                        contentDescription = "Bitmap image",
+                        modifier = Modifier
+                            .size(200.dp)
+                            .clickable {
+                                if (!isNetworkAvailable(MyApp.appContext)) {
+                                    showConfirmationDialog(navController.context, navController)
+
+                                } else {
+                                    navController.navigate("ARScreen/${it.name}")
+                                    Log.i("tiedot", "ARScreen/${it.name}")
+                                }
+
+                            }
+                    )
+                }
+            }
+        }
+
+    }
+}
+@Composable
+fun FrameList(model: ArtisticViewModel, navController: NavController){
+
+    val models = model.getAllFrames().observeAsState(listOf())
+    val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+    var modelBitMap by remember { mutableStateOf(initData) }
+
+    Box(modifier = Modifier.padding(50.dp))
+    {
+        LazyVerticalGrid(
+            GridCells.Adaptive(minSize = 128.dp),
+            modifier = Modifier.padding(16.dp)
+        ) {
+            items(models.value) {
+                val imageBitMap = remember {
+                    BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
+                }
+                modelBitMap = imageBitMap
+                Box(
+                    modifier = Modifier
+                        .padding(8.dp)
+                ) {
+                    Image(
+                        bitmap = modelBitMap.asImageBitmap(),
+                        contentDescription = "Bitmap image",
+                        modifier = Modifier
+                            .size(200.dp)
+                            .clickable {
+                                if (!isNetworkAvailable(MyApp.appContext)) {
+                                    showConfirmationDialog(navController.context, navController)
+
+                                } else {
+                                    navController.navigate("ARScreen/${it.name}")
+                                    Log.i("tiedot", "ARScreen/${it.name}")
+                                }
+
+                            }
+                    )
+                }
+            }
+        }
+
     }
 }
 
@@ -201,6 +309,18 @@ private suspend fun getAndSaveModels(model: ArtisticViewModel, urls: List<String
             "https://users.metropolia.fi/~tuomheik/test/${it}.glb",
             it,
             modelImage
+        )
+    }
+}
+private suspend fun getAndSaveFrames(frame: ArtisticViewModel, urls: List<String>) {
+    urls.forEach {
+        val bitmap = getImage("https://users.metropolia.fi/~eeturo/frames/${it}.png")
+        println(":DDD $bitmap")
+        val frameImage = getByteFromBitMap(bitmap)
+        frame.addNewFrame(
+            "https://users.metropolia.fi/~eeturo/frames/${it}.glb",
+            it,
+            frameImage
         )
     }
 }

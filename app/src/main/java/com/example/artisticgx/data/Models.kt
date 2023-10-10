@@ -11,4 +11,11 @@ data class Models(
     @ColumnInfo(name = "name") val name: String?,
     @ColumnInfo(typeAffinity = ColumnInfo.BLOB, name = "image") val image: ByteArray?
 )
+@Entity
+data class Frames(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @ColumnInfo(name = "frame_url") val modelUrl: String?,
+    @ColumnInfo(name = "name") val name: String?,
+    @ColumnInfo(typeAffinity = ColumnInfo.BLOB, name = "image") val image: ByteArray?
+)
 
