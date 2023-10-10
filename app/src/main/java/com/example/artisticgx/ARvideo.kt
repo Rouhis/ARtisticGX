@@ -7,11 +7,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
@@ -68,7 +73,7 @@ fun Arframe(frame: String, navController: NavController) {
         }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
     ) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
@@ -106,12 +111,21 @@ fun Arframe(frame: String, navController: NavController) {
 
             },
             onTap = {
-                if (videoUri != null) {
-                    mediaPlayer.start()
-                } else {
-                    galleryLauncher.launch("video/*")
-                }
+                mediaPlayer.start()
             }
+
         )
+        Box(
+            modifier = Modifier
+
+                .fillMaxSize()
+                .wrapContentSize(Alignment.BottomCenter)
+        ) {
+            Button(onClick = {
+                galleryLauncher.launch("video/*")
+            }) {
+                Text(text = "Choose video")
+            }
+
     }
-}
+}}
