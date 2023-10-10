@@ -7,6 +7,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore.Video
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -44,6 +45,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.artisticgx.data.ArtisticViewModel
 import com.example.artisticgx.ui.theme.ARtisticGXTheme
+import com.google.ar.core.Frame
+import io.github.sceneview.ar.arcore.ArFrame
+import io.github.sceneview.utils.FrameTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -61,7 +65,8 @@ class MainActivity : ComponentActivity() {
             }
             //  QRScreen()
             // ARScreen(currentModel.value)
-            ARtisticGXTheme {
+            Arframe(frame = "frameb", video = "kolibri")
+      /*      ARtisticGXTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -77,7 +82,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-            }
+            }*/
         }
     }
 }
@@ -121,7 +126,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
     // Initialize a placeholder BitMap
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
     var modelBitMap by remember { mutableStateOf(initData) }
-    val urls = listOf("sofa", "tableLamp", "lillyChair", "woodenCabinet")
+    val urls = listOf("sofa", "table_lamp", "lilly_chair", "wooden_cabinet")
 
     if (isNetworkAvailable(MyApp.appContext)) {
         if (isEmpty.value != null) {
