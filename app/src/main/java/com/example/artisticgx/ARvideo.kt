@@ -14,6 +14,8 @@ import com.google.ar.core.Config
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.PlacementMode
+import io.github.sceneview.light.direction
+import io.github.sceneview.math.Direction
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.Node
@@ -21,7 +23,7 @@ import io.github.sceneview.node.VideoNode
 import kotlinx.coroutines.delay
 
 @Composable
-fun Arframe(frame: String, video: String) {
+fun Arframe(frame: String?, video: String?) {
     val nodes = remember {
         mutableListOf<Node>()
     }
@@ -52,9 +54,10 @@ fun Arframe(frame: String, video: String) {
                 arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 arSceneView.planeRenderer.isShadowReceiver = false
                 arSceneView.planeFindingEnabled
+                arSceneView.mainLight?.direction = Direction(-1f)
                 modelNode.value = ArModelNode(arSceneView.engine,PlacementMode.PLANE_VERTICAL ).apply {
                     loadModelGlbAsync(
-                        glbFileLocation = "https://users.metropolia.fi/~eeturo/glb/$frame.glb",
+                        glbFileLocation = "https://users.metropolia.fi/~eeturo/frames/$frame.glb",
                         scaleToUnits = 1f,
                         centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
 

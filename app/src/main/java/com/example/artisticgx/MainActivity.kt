@@ -269,8 +269,8 @@ fun FrameList(model: ArtisticViewModel, navController: NavController){
                                     showConfirmationDialog(navController.context, navController)
 
                                 } else {
-                                    navController.navigate("ARScreen/${it.name}")
-                                    Log.i("tiedot", "ARScreen/${it.name}")
+                                    navController.navigate("ArFrame/${it.name}/kolibri")
+                                    Log.i("tiedot", "ArFrame/{frame}/{kolibri}")
                                 }
 
                             }
