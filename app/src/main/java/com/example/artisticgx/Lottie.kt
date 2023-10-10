@@ -15,7 +15,7 @@ fun ClickableLottieAnimation(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
-    val preloaderLottieComposition by rememberLottieComposition(
+    val lottieComposition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(
             R.raw.ympyra
         )
@@ -23,22 +23,22 @@ fun ClickableLottieAnimation(
 
     var isPlaying by remember { mutableStateOf(false) }
 
-    val preloaderProgress by animateLottieCompositionAsState(
-        preloaderLottieComposition,
+    val progress by animateLottieCompositionAsState(
+        lottieComposition,
         isPlaying = isPlaying,
         iterations = 1,
     )
 
-    DisposableEffect(preloaderProgress) {
-        if (preloaderProgress == 1f) {
+    DisposableEffect(progress) {
+        if (progress == 1f) {
             navController.navigate("GetModelsTest")
         }
         onDispose { }
     }
 
     LottieAnimation(
-        composition = preloaderLottieComposition,
-        progress = preloaderProgress,
+        composition = lottieComposition,
+        progress = progress,
         modifier = modifier.clickable {
             isPlaying = !isPlaying
         }

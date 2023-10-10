@@ -120,7 +120,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
     // Initialize a placeholder BitMap
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
     var modelBitMap by remember { mutableStateOf(initData) }
-    val urls = listOf("sofa", "tableLamp", "lillyChair", "woodenCabinet")
+    val urls = listOf("sofa", "table_lamp", "lilly_chair", "wooden_cabinet")
 
     if (isNetworkAvailable(MyApp.appContext)) {
         if (isEmpty.value != null) {
@@ -133,7 +133,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
         }
 
 
-        Box(modifier = Modifier.clickable { })
+        Box()
         {
             LazyVerticalGrid(
                 GridCells.Adaptive(minSize = 128.dp),
@@ -209,17 +209,16 @@ fun showConfirmationDialog(context: Context,navController: NavController) {
     alertDialogBuilder.setTitle("Are you sure?")
     alertDialogBuilder.setMessage("Continuing without a model means you won't be able to experience AR content. Are you sure you want to continue without internet connection?")
 
-    // Set a positive button and its click listener on the dialog
     alertDialogBuilder.setPositiveButton("Yes") { dialog, which ->
         navController.navigate("ARScreen/${null}")
     }
 
-    // Set a negative button and its click listener on the dialog
+
     alertDialogBuilder.setNegativeButton("No") { dialog, which ->
         navController.navigate("GetModelsTest")
     }
 
-    // Create and show the dialog
+
     val alertDialog = alertDialogBuilder.create()
     alertDialog.show()
 }
