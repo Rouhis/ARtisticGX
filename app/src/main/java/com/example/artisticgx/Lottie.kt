@@ -1,5 +1,6 @@
 package com.example.artisticgx
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -39,7 +40,10 @@ fun ClickableLottieAnimation(
     LottieAnimation(
         composition = lottieComposition,
         progress = progress,
-        modifier = modifier.clickable {
+        modifier = modifier.clickable(
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() })
+        {
             isPlaying = !isPlaying
         }
     )

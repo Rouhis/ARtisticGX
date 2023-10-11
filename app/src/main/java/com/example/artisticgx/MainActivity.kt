@@ -192,6 +192,7 @@ fun FurnitureList(model: ArtisticViewModel, navController: NavController){
 
     Box(modifier = Modifier.padding(50.dp))
     {
+
         LazyVerticalGrid(
             GridCells.Adaptive(minSize = 128.dp),
             modifier = Modifier.padding(16.dp)

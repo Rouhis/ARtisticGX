@@ -26,7 +26,8 @@ fun NoPermissionContent(
     onRequestPermission: () -> Unit
 ){
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
