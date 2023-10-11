@@ -1,5 +1,6 @@
 package com.example.artisticgx
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -69,7 +70,6 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                             //     rotation = Rotation(0f, 0f, 0f)
                         }
                     }
-
                 nodes.add(modelNode.value!!)
             },
             onSessionCreate = {
@@ -113,19 +113,22 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                 onClick = {
                     if (model.isNotEmpty()) {
                         if (modelNode.value?.isAnchored == false) {
-                            modelNode.value!!.anchor()
+                            modelNode.value?.anchor()
                         }
-                        modelNode.value!!.hostCloudAnchor { anchor: Anchor, success: Boolean ->
+                        modelNode.value?.hostCloudAnchor { anchor: Anchor, success: Boolean ->
+                            Toast.makeText(MyApp.appContext, "Saving the new anchor, please wait a moment", Toast.LENGTH_SHORT).show()
                             if (success) {
                                 println("XPX anchor: ${anchor.cloudAnchorId}")
                                 models.value.forEach {
                                     if (id == it.id) {
                                         println("XPX adding to DB")
                                         viewModel.addNewCloudAnchor(anchor.cloudAnchorId, id)
+                                        Toast.makeText(MyApp.appContext, "Added the new anchor to the DB", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             } else {
                                 println("XPX failed: ${anchor.cloudAnchorState}")
+                                Toast.makeText(MyApp.appContext, "Adding the new anchor failed, please try again", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -138,11 +141,16 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
             Button(
                 onClick = {
                     cloudAnchorFromDB.value?.let {
+                        val tipToast = Toast.makeText(MyApp.appContext, "Please aim your camera to the anchored position", Toast.LENGTH_SHORT)
+                        tipToast.show()
                         modelNode.value?.resolveCloudAnchor(it) { anchor: Anchor, success: Boolean ->
                             if (success) {
                                 println("XPX anchorOnResolve: $anchor")
+                                tipToast.cancel()
+                                Toast.makeText(MyApp.appContext, "Moved model back to the anchored position", Toast.LENGTH_SHORT).show()
                             } else {
                                 println("XPX anchorOnResolveFailed ${anchor.cloudAnchorState}")
+                                Toast.makeText(MyApp.appContext, "Moving model back to the anchored position failed ${anchor.cloudAnchorState}", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
