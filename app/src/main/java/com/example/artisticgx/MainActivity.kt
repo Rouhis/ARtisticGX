@@ -1,6 +1,8 @@
 package com.example.artisticgx
 
 import android.content.Context
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.ConnectivityManager
@@ -22,6 +24,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -121,7 +124,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
     // Initialize a placeholder BitMap
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
     var modelBitMap by remember { mutableStateOf(initData) }
-    val urls = listOf("sofa", "tableLamp", "lillyChair", "woodenCabinet")
+    val urls = listOf("sofa", "table_lamp", "lilly_chair", "wooden_cabinet")
 
     if (isNetworkAvailable(MyApp.appContext)) {
         if (isEmpty.value != null) {
@@ -130,6 +133,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
                 LaunchedEffect(urls) {
                     getAndSaveModels(model, urls)
                 }
+                val urls = listOf("sofa", "table_lamp", "lilly_chair", "wooden_cabinet")
             }
         }
 
@@ -164,7 +168,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
             }
 
         }
-    }else{
+    } else {
         noNetwork()
     }
 }

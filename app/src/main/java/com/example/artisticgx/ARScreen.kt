@@ -1,41 +1,32 @@
 package com.example.artisticgx
 
-import android.media.Image
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import io.github.sceneview.ar.ARScene
-import io.github.sceneview.ar.node.ArModelNode
-import io.github.sceneview.ar.node.ArNode
-import android.util.Log
-import androidx.compose.foundation.clickable
-import androidx.compose.material3.Text
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.google.android.filament.utils.h
+import com.google.ar.core.Anchor
+import com.google.ar.core.Anchor.CloudAnchorState
 import com.google.ar.core.Config
+import com.google.ar.core.Config.CloudAnchorMode
 import com.google.ar.core.Config.LightEstimationMode
-import com.google.ar.core.LightEstimate
-import com.google.ar.sceneform.math.Quaternion
-import com.google.ar.sceneform.math.Vector3
-import com.google.ar.sceneform.rendering.ViewRenderable
-import dev.romainguy.kotlin.math.rotation
-import io.github.sceneview.Scene
-import io.github.sceneview.ar.localPosition
+import com.google.ar.core.Future
+import com.google.ar.core.HostCloudAnchorFuture
+import com.google.ar.core.Session
+import com.google.ar.core.TrackingState
+import io.github.sceneview.ar.ARScene
+import io.github.sceneview.ar.arcore.position
+import io.github.sceneview.ar.node.ArModelNode
+import io.github.sceneview.ar.node.ArNode
 import io.github.sceneview.ar.node.PlacementMode
-import io.github.sceneview.light.Light
 import io.github.sceneview.math.Position
-import io.github.sceneview.math.Rotation
-import io.github.sceneview.node.Node
-
+import kotlinx.coroutines.delay
 
 @Composable
 fun ARScreen(model:String, navController: NavController) {
@@ -45,20 +36,23 @@ fun ARScreen(model:String, navController: NavController) {
     val modelNode = remember {
         mutableStateOf<ArModelNode?>(null)
     }
+    var anchor: Anchor? = null
+    var future: HostCloudAnchorFuture? = null
+
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
             nodes = nodes,
             planeRenderer = true,
             onCreate = { arSceneView ->
-
                 arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 arSceneView.planeRenderer.isShadowReceiver = false
                 arSceneView.planeFindingEnabled
+                arSceneView.cloudAnchorEnabled = true
 
 
                 modelNode.value =
-                    ArModelNode(arSceneView.engine, PlacementMode.PLANE_VERTICAL,).apply {
+                    ArModelNode(arSceneView.engine, PlacementMode.PLANE_VERTICAL).apply {
                         loadModelGlbAsync(
                             glbFileLocation = "https://users.metropolia.fi/~tuomheik/test/$model.glb",
                             scaleToUnits = 0.8f,
@@ -77,7 +71,25 @@ fun ARScreen(model:String, navController: NavController) {
                 planeRenderer.isVisible = true
             },
             onTap = {
-
+                println("XPX toimiiko?: ${future?.state}")
+                println("XPX it ${it}")
+                println("XPX trackable ${it.trackable.trackingState} trackingstate ${TrackingState.TRACKING}")
+                println("XPX hitpose ${it.hitPose.position}")
+                println("XPX distance ${it.distance}")
+                if (it.trackable.trackingState == TrackingState.TRACKING) {
+                    val test = it.createAnchor()
+                    println("XPX anchor: $test pose: ${test.pose}  trackingState: ${test.trackingState}")
+                    if (this.arSession != null && future == null) {
+                        println("XPX allAnchors: ${this.arSession?.allAnchors}")
+                        future = this.arSession?.hostCloudAnchorAsync(test, 1, null)
+                        println("XPX state: ${future?.state}")
+                    }
+                    if (future != null && future?.state.toString() == "DONE") {
+                        println("XPX state: ${future?.state} and ID: ${future?.resultCloudAnchorId}")
+                    }
+                    //future = session.hostCloudAnchorAsync(test, 1, null)
+                    //println("XPX future: $future trackingState: ${test.trackingState}")
+                }
             }
         )
         Image(painter = painterResource(id = R.drawable.qr_code_png5),
@@ -102,16 +114,35 @@ fun ARScreen(model:String, navController: NavController) {
                 }
                 .align(Alignment.TopEnd) // Align the image to the top end (right corner)
         )
+        Button(
+            onClick = {
+                println("XPX host: ${future?.state}")
+            }
+        ) {
+            Text(":DD")
+        }
     }
 
-    LaunchedEffect(key1 = model){
+    /*fun onClearButton() {
+        if (anchor != null) {
+            anchor!!.detach()
+            anchor = null
+        }
+
+        if (future != null) {
+            future!!.cancel()
+            future = null
+        }
+    }*/
+
+    /*LaunchedEffect(key1 = model){
         modelNode.value?.loadModelGlbAsync(
             glbFileLocation = "${model}.glb",
             scaleToUnits = 0.8f,
 
         )
         Log.e("errorloading","ERROR")
-    }
+    }*/
 
 }
 
