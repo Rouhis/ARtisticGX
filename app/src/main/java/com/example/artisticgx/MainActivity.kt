@@ -120,7 +120,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
     val framesIsEmpty = model.framesIsEmpty().observeAsState()
     val urls = listOf("sofa", "table_lamp", "lilly_chair", "wooden_cabinet")
     val frameurls = listOf("frame")
-    var selectedOption by remember { mutableStateOf("Furniture") }
+    var selectedOption by remember { mutableStateOf("Paintings") }
     val context = MyApp.appContext
     var expanded by remember { mutableStateOf(false) }
 
@@ -148,7 +148,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
                 .wrapContentSize(Alignment.Center)
         ) {
             Button(onClick = { expanded = true}) {
-                Text(text = "Choose")
+                Text(text = "$selectedOption")
             }
 
             DropdownMenu(

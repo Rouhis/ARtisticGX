@@ -113,7 +113,6 @@ fun Arframe(frame: String, navController: NavController) {
             onTap = {
 
                 mediaPlayer.start()
-
             }
 
         )
