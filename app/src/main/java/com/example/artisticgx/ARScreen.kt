@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.artisticgx.data.ArtisticViewModel
 import com.google.ar.core.Anchor
 import com.google.ar.core.Anchor.CloudAnchorState
 import com.google.ar.core.Config
@@ -29,15 +31,18 @@ import io.github.sceneview.math.Position
 import kotlinx.coroutines.delay
 
 @Composable
-fun ARScreen(model:String, navController: NavController) {
+fun ARScreen(model: String, navController: NavController, viewModel: ArtisticViewModel) {
+    // Observe LiveData
+    val anchors = viewModel.getAllCloudAnchors().observeAsState(listOf())
+
+    println("Anchors in the DB: ${anchors.value.size}")
+    println("Anchors: ${anchors.value}")
     val nodes = remember {
         mutableListOf<ArNode>()
     }
     val modelNode = remember {
         mutableStateOf<ArModelNode?>(null)
     }
-    var anchor: Anchor? = null
-    var future: HostCloudAnchorFuture? = null
 
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
@@ -71,44 +76,12 @@ fun ARScreen(model:String, navController: NavController) {
                 planeRenderer.isVisible = true
             },
             onTap = {
-                if (!modelNode.value?.isAnchored!!) {
-                    modelNode.value!!.anchor()
-                }
-                fun onHostComplete(cloudAnchorId: String, cloudState: CloudAnchorState) {
-                    if (cloudState == CloudAnchorState.SUCCESS) {
-                        println("Cloud Anchor Hosted. ID: $cloudAnchorId")
-                    } else {
-                        println("Error while hosting: $cloudState");
-                    }
-                }
-                println("XPX toimiiko?: ${future?.state}")
-                println("XPX it ${it}")
+                println("XPX ${modelNode.value}")
+                /*println("XPX it ${it}")
                 println("XPX trackable ${it.trackable.trackingState} trackingstate ${TrackingState.TRACKING}")
                 println("XPX hitpose ${it.hitPose.position}")
                 println("XPX distance ${it.distance}")
-                println("XPX packagename: ${MyApp.appContext.packageName}")
-                modelNode.value!!.hostCloudAnchor { anchori: Anchor, success: Boolean ->
-                    if (success) {
-                        println("XPX anchor: ${anchori.cloudAnchorId}")
-                    } else {
-                        println("XPX failed: ${anchori.cloudAnchorState}")
-                    }
-                }
-                /*if (it.trackable.trackingState == TrackingState.TRACKING) {
-                    val test = it.createAnchor()
-                    println("XPX anchor: $test pose: ${test.pose}  trackingState: ${test.trackingState}")
-                    if (this.arSession != null && future == null) {
-                        println("XPX allAnchors: ${this.arSession?.allAnchors}")
-                        future = this.arSession?.hostCloudAnchorAsync(test, 1, null)
-                        println("XPX state: ${future?.state}")
-                        println("XPX id: ${future?.resultCloudAnchorId}")
-                    }
-                    if (future != null && future?.state.toString() == "DONE") {
-                        println("XPX state: ${future?.state} and ID: ${future?.resultCloudAnchorId}")
-                    }
-                    //future = session.hostCloudAnchorAsync(test, 1, null)
-                    //println("XPX future: $future trackingState: ${test.trackingState}")
-                }*/
+                println("XPX packagename: ${MyApp.appContext.packageName}")*/
             }
         )
         Image(painter = painterResource(id = R.drawable.qr_code_png5),
@@ -133,26 +106,64 @@ fun ARScreen(model:String, navController: NavController) {
                 }
                 .align(Alignment.TopEnd) // Align the image to the top end (right corner)
         )
-        Button(
-            onClick = {
-                println("XPX host: ${future?.state}")
-            }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(":DD")
+            /*  Onclick adds a new cloud anchor to ARCore API's cloud storage for 24 hours.
+                Also adds the cloud anchor's ID to DB */
+            Button(
+                onClick = {
+                    if (model.isNotEmpty()) {
+                        if (modelNode.value?.isAnchored == false) {
+                            modelNode.value!!.anchor()
+                        }
+                        modelNode.value!!.hostCloudAnchor { anchor: Anchor, success: Boolean ->
+                            if (success) {
+                                println("XPX anchor: ${anchor.cloudAnchorId}")
+                                viewModel.addNewAnchor(anchor.cloudAnchorId)
+                            } else {
+                                println("XPX failed: ${anchor.cloudAnchorState}")
+                            }
+                        }
+                    }
+                }
+            ) {
+                Text("Add anchor and host it")
+            }
+            /*  onClick uses a cloud anchor ID to get a saved anchor from the ARCore API's cloud storage.
+                App gets the cloud anchor ID from DB */
+            Button(
+                onClick = {
+                    anchors.value[0].anchorId?.let {
+                        modelNode.value?.resolveCloudAnchor(it) { anchor: Anchor, success: Boolean ->
+                            if (success) {
+                                println("XPX anchorOnResolve: $anchor")
+                            } else {
+                                println("XPX anchorOnResolveFailed ${anchor.cloudAnchorState}")
+                            }
+                        }
+                    }
+                    println("XPX idanchor: ${anchors.value}")
+                }
+            ) {
+                if (anchors.value.isNotEmpty()) {
+                    Text("Move model back to anchored spot")
+                } else {
+                    Text("No saved anchors")
+                }
+            }
+        }
+        /*  Clear the current model's anchor so that it can be moved around freely again.
+            Anchor can be re-added by pressing on the "Move model back to anchored spot" button */
+        Button(
+            modifier = Modifier.align(Alignment.TopCenter),
+            onClick = { modelNode.value?.detachAnchor() }
+        ) {
+            Text("Clear model anchor")
         }
     }
-
-    /*fun onClearButton() {
-        if (anchor != null) {
-            anchor!!.detach()
-            anchor = null
-        }
-
-        if (future != null) {
-            future!!.cancel()
-            future = null
-        }
-    }*/
 
     /*LaunchedEffect(key1 = model){
         modelNode.value?.loadModelGlbAsync(

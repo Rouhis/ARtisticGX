@@ -29,4 +29,16 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
         val isEmpty: Flow<Int> = db.ModelsDao().isEmpty()
         return isEmpty.asLiveData()
     }
+
+    // Get all CloudAnchors from the DB
+    fun getAllCloudAnchors(): LiveData<List<Anchors>> {
+        val allCloudAnchors: Flow<List<Anchors>> = db.AnchorsDao().getAll()
+        return allCloudAnchors.asLiveData()
+    }
+
+    // Add a new CloudAnchor to the DB
+    fun addNewAnchor(cloudAnchorId: String) {
+        val newAnchor = Anchors(0, cloudAnchorId)
+        viewModelScope.launch { db.AnchorsDao().addAnchor(newAnchor)}
+    }
 }
