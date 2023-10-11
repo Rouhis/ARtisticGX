@@ -43,37 +43,54 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 
 
+/**
+ * This composable function represents the QR code scanning screen.
+ *
+ * @param navController The navigation controller for handling screen transitions.
+ */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun QRScreen(navController: NavController) {
+
+    // Mutable state for storing the scanned QR code.
     var code: String? by remember {
         mutableStateOf(null)
     }
+
+    // Get the current context and lifecycle owner.
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Create a camera provider future to initialize the camera.
     val cameraProviderFuture = remember {
         ProcessCameraProvider.getInstance(context)
     }
+
+    // Get the camera permission state.
     val cameraPermissionState: PermissionState =
         rememberPermissionState(android.Manifest.permission.CAMERA)
 
+    // Check if the camera permission is granted.
     val hasPermission = cameraPermissionState.status.isGranted
+
+    // Define the permission request function.
     val onRequestPermission = cameraPermissionState::launchPermissionRequest
 
+    // Check if the camera permission is granted.
     if (hasPermission) {
+        // Main content inside a Box composable.
         Box(
             modifier = Modifier.fillMaxSize()
-
         ) {
+            // AndroidView for displaying the camera preview.
             AndroidView(
-
                 factory = { context ->
                     val previewView = PreviewView(context)
                     val preview = Preview.Builder().build()
-                    val selector =
-                        CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                            .build()
+                    val selector = CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build()
                     preview.setSurfaceProvider(previewView.surfaceProvider)
+
+                    // Create an ImageAnalysis for QR code scanning.
                     val imageAnalysis = ImageAnalysis.Builder()
                         .setTargetResolution(Size(previewView.width, previewView.height))
                         .setBackpressureStrategy(STRATEGY_KEEP_ONLY_LATEST)
@@ -83,12 +100,12 @@ fun QRScreen(navController: NavController) {
                         ContextCompat.getMainExecutor(context),
                         QRCodeAnalyzer { result ->
                             code = result
-                            Log.d("qr", "tääässs $code")
-
+                            Log.d("qr", "Scanned QR code: $code")
                         }
                     )
 
                     try {
+                        // Bind the camera to the lifecycle.
                         cameraProviderFuture.get().bindToLifecycle(
                             lifecycleOwner,
                             selector,
@@ -96,16 +113,15 @@ fun QRScreen(navController: NavController) {
                             imageAnalysis
                         )
                     } catch (e: Exception) {
-                        Log.d("qr", "satan")
-
+                        Log.d("qr", "Error binding camera to lifecycle")
                         e.printStackTrace()
                     }
                     previewView
                 },
                 modifier = Modifier.fillMaxSize()
-
             )
 
+            // Icons for navigation to other screens.
             Image(painter = painterResource(id = R.drawable.kivaa), contentDescription = "Image",
                 modifier = Modifier
                     .size(60.dp)
@@ -125,6 +141,7 @@ fun QRScreen(navController: NavController) {
                     .align(Alignment.TopEnd)
             )
 
+            // Display the scanned QR code and navigate based on its content.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -133,11 +150,10 @@ fun QRScreen(navController: NavController) {
                     .background(color = Color.Gray, shape = RoundedCornerShape(8.dp))
                     .clickable {
                         if (code == "frame") {
-                            navController.navigate("ARFrame/${code}")
+                            navController.navigate("ARFrame/$code")
                         } else {
-                            navController.navigate("ARScreen/${code}")
+                            navController.navigate("ARScreen/$code")
                         }
-
                     },
                 contentAlignment = Alignment.Center
             ) {
@@ -151,7 +167,8 @@ fun QRScreen(navController: NavController) {
                 )
             }
         }
-    }else{
+    } else {
+        // Display a screen for handling the case when camera permission is not granted.
         NoPermissionScreen(onRequestPermission)
     }
 }
