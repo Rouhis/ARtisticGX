@@ -71,25 +71,44 @@ fun ARScreen(model:String, navController: NavController) {
                 planeRenderer.isVisible = true
             },
             onTap = {
+                if (!modelNode.value?.isAnchored!!) {
+                    modelNode.value!!.anchor()
+                }
+                fun onHostComplete(cloudAnchorId: String, cloudState: CloudAnchorState) {
+                    if (cloudState == CloudAnchorState.SUCCESS) {
+                        println("Cloud Anchor Hosted. ID: $cloudAnchorId")
+                    } else {
+                        println("Error while hosting: $cloudState");
+                    }
+                }
                 println("XPX toimiiko?: ${future?.state}")
                 println("XPX it ${it}")
                 println("XPX trackable ${it.trackable.trackingState} trackingstate ${TrackingState.TRACKING}")
                 println("XPX hitpose ${it.hitPose.position}")
                 println("XPX distance ${it.distance}")
-                if (it.trackable.trackingState == TrackingState.TRACKING) {
+                println("XPX packagename: ${MyApp.appContext.packageName}")
+                modelNode.value!!.hostCloudAnchor { anchori: Anchor, success: Boolean ->
+                    if (success) {
+                        println("XPX anchor: ${anchori.cloudAnchorId}")
+                    } else {
+                        println("XPX failed: ${anchori.cloudAnchorState}")
+                    }
+                }
+                /*if (it.trackable.trackingState == TrackingState.TRACKING) {
                     val test = it.createAnchor()
                     println("XPX anchor: $test pose: ${test.pose}  trackingState: ${test.trackingState}")
                     if (this.arSession != null && future == null) {
                         println("XPX allAnchors: ${this.arSession?.allAnchors}")
                         future = this.arSession?.hostCloudAnchorAsync(test, 1, null)
                         println("XPX state: ${future?.state}")
+                        println("XPX id: ${future?.resultCloudAnchorId}")
                     }
                     if (future != null && future?.state.toString() == "DONE") {
                         println("XPX state: ${future?.state} and ID: ${future?.resultCloudAnchorId}")
                     }
                     //future = session.hostCloudAnchorAsync(test, 1, null)
                     //println("XPX future: $future trackingState: ${test.trackingState}")
-                }
+                }*/
             }
         )
         Image(painter = painterResource(id = R.drawable.qr_code_png5),
