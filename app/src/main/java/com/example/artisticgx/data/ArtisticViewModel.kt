@@ -19,26 +19,26 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
         return allModels.asLiveData()
     }
 
-    // Add a new model to the DB
-    fun addNewModel(modelURL: String, modelName: String, modelImage: ByteArray) {
-        val newModel = Models(0, modelURL, modelName, modelImage)
-        viewModelScope.launch { db.ModelsDao().addModel(newModel)}
+    // Gets a specific Model's cloudAnchor value by giving the Model's ID as a parameter
+    fun getCloudAnchor(id: Int): LiveData<String> {
+        val cloudAnchor: Flow<String> = db.ModelsDao().getCloudAnchor(id)
+        return cloudAnchor.asLiveData()
     }
 
+    // Adds a new cloud anchor to the specific model. Parameters are Model's ID and cloudAnchorID as a string
+    fun addNewCloudAnchor(cloudAnchor: String, id: Int) {
+        viewModelScope.launch { db.ModelsDao().addCloudAnchor(cloudAnchor, id) }
+    }
+
+    // Add a new model to the DB
+    fun addNewModel(modelURL: String, modelName: String, modelImage: ByteArray) {
+        val newModel = Models(0, modelURL, modelName, null, modelImage)
+        viewModelScope.launch { db.ModelsDao().addModel(newModel) }
+    }
+
+    // Check if there are no columns in the Models table. Used when adding models to the DB
     fun isEmpty(): LiveData<Int> {
         val isEmpty: Flow<Int> = db.ModelsDao().isEmpty()
         return isEmpty.asLiveData()
-    }
-
-    // Get all CloudAnchors from the DB
-    fun getAllCloudAnchors(): LiveData<List<Anchors>> {
-        val allCloudAnchors: Flow<List<Anchors>> = db.AnchorsDao().getAll()
-        return allCloudAnchors.asLiveData()
-    }
-
-    // Add a new CloudAnchor to the DB
-    fun addNewAnchor(cloudAnchorId: String) {
-        val newAnchor = Anchors(0, cloudAnchorId)
-        viewModelScope.launch { db.AnchorsDao().addAnchor(newAnchor)}
     }
 }

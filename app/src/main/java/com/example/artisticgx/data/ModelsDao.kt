@@ -11,6 +11,12 @@ interface ModelsDao {
     @Query("SELECT * FROM Models")
     fun getAll(): Flow<List<Models>>
 
+    @Query("SELECT cloud_anchor FROM Models WHERE id = :id")
+    fun getCloudAnchor(id: Int): Flow<String>
+
+    @Query("UPDATE Models SET cloud_anchor = :cloudAnchor WHERE id = :id")
+    suspend fun addCloudAnchor(cloudAnchor: String, id: Int)
+
     @Query("SELECT count(*) FROM Models")
     fun isEmpty(): Flow<Int>
 

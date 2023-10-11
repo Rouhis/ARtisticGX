@@ -42,9 +42,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.artisticgx.data.ArtisticViewModel
 import com.example.artisticgx.ui.theme.ARtisticGXTheme
 import kotlinx.coroutines.Dispatchers
@@ -100,10 +102,14 @@ fun AppNavigation(
             QRScreen(navController)
         }
         composable("ARScreen") { navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model") ?: "", navController, viewModel)
+            ARScreen(model = navBackStackEntry.arguments?.getString("model") ?: "", navBackStackEntry.arguments?.getInt("model") ?: 0, navController, viewModel)
         }
-        composable("ARScreen/{model}") { navBackStackEntry ->
-            ARScreen(model = navBackStackEntry.arguments?.getString("model") ?: "", navController, viewModel)
+        // Navigates to the ARScreen with parameters modelname and model ID. If model ID is null, passes 0 instead
+        composable("ARScreen/{model}/{id}", arguments = listOf(
+            navArgument("model") { type = NavType.StringType},
+            navArgument("id") { type = NavType.IntType}
+        )) { navBackStackEntry ->
+            ARScreen(model = navBackStackEntry.arguments?.getString("model") ?: "", navBackStackEntry.arguments?.getInt("id") ?: 0, navController, viewModel)
         }
         composable("ArFrame/{frame}/{video}") { navBackStackEntry ->
             navBackStackEntry.arguments?.getString("video")
@@ -159,7 +165,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
                             modifier = Modifier
                                 .size(200.dp)
                                 .clickable {
-                                    navController.navigate("ARScreen/${it.name}")
+                                    navController.navigate("ARScreen/${it.name}/${it.id}")
                                     Log.i("tiedot", "ARScreen/${it.name}")
                                 }
                         )

@@ -31,12 +31,13 @@ import io.github.sceneview.math.Position
 import kotlinx.coroutines.delay
 
 @Composable
-fun ARScreen(model: String, navController: NavController, viewModel: ArtisticViewModel) {
+fun ARScreen(model: String, id: Int, navController: NavController, viewModel: ArtisticViewModel) {
     // Observe LiveData
-    val anchors = viewModel.getAllCloudAnchors().observeAsState(listOf())
+    val models = viewModel.getAllModels().observeAsState(listOf())
+    val cloudAnchorFromDB = viewModel.getCloudAnchor(id).observeAsState()
+    println("XPP cloudAnchorFromDB ${cloudAnchorFromDB.value}")
 
-    println("Anchors in the DB: ${anchors.value.size}")
-    println("Anchors: ${anchors.value}")
+    println("XPP $id")
     val nodes = remember {
         mutableListOf<ArNode>()
     }
@@ -76,12 +77,7 @@ fun ARScreen(model: String, navController: NavController, viewModel: ArtisticVie
                 planeRenderer.isVisible = true
             },
             onTap = {
-                println("XPX ${modelNode.value}")
-                /*println("XPX it ${it}")
-                println("XPX trackable ${it.trackable.trackingState} trackingstate ${TrackingState.TRACKING}")
-                println("XPX hitpose ${it.hitPose.position}")
-                println("XPX distance ${it.distance}")
-                println("XPX packagename: ${MyApp.appContext.packageName}")*/
+
             }
         )
         Image(painter = painterResource(id = R.drawable.qr_code_png5),
@@ -112,7 +108,7 @@ fun ARScreen(model: String, navController: NavController, viewModel: ArtisticVie
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             /*  Onclick adds a new cloud anchor to ARCore API's cloud storage for 24 hours.
-                Also adds the cloud anchor's ID to DB */
+                Also adds the cloud anchor's ID to the models table in DB */
             Button(
                 onClick = {
                     if (model.isNotEmpty()) {
@@ -122,7 +118,12 @@ fun ARScreen(model: String, navController: NavController, viewModel: ArtisticVie
                         modelNode.value!!.hostCloudAnchor { anchor: Anchor, success: Boolean ->
                             if (success) {
                                 println("XPX anchor: ${anchor.cloudAnchorId}")
-                                viewModel.addNewAnchor(anchor.cloudAnchorId)
+                                models.value.forEach {
+                                    if (id == it.id) {
+                                        println("XPX adding to DB")
+                                        viewModel.addNewCloudAnchor(anchor.cloudAnchorId, id)
+                                    }
+                                }
                             } else {
                                 println("XPX failed: ${anchor.cloudAnchorState}")
                             }
@@ -136,7 +137,7 @@ fun ARScreen(model: String, navController: NavController, viewModel: ArtisticVie
                 App gets the cloud anchor ID from DB */
             Button(
                 onClick = {
-                    anchors.value[0].anchorId?.let {
+                    cloudAnchorFromDB.value?.let {
                         modelNode.value?.resolveCloudAnchor(it) { anchor: Anchor, success: Boolean ->
                             if (success) {
                                 println("XPX anchorOnResolve: $anchor")
@@ -145,23 +146,23 @@ fun ARScreen(model: String, navController: NavController, viewModel: ArtisticVie
                             }
                         }
                     }
-                    println("XPX idanchor: ${anchors.value}")
                 }
             ) {
-                if (anchors.value.isNotEmpty()) {
+                if (cloudAnchorFromDB.value?.isNotEmpty() == true) {
                     Text("Move model back to anchored spot")
                 } else {
-                    Text("No saved anchors")
+                    Text("No saved anchors for this model")
                 }
             }
         }
         /*  Clear the current model's anchor so that it can be moved around freely again.
             Anchor can be re-added by pressing on the "Move model back to anchored spot" button */
         Button(
-            modifier = Modifier.align(Alignment.TopCenter),
+            modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
             onClick = { modelNode.value?.detachAnchor() }
         ) {
-            Text("Clear model anchor")
+            Text("Clear model anchor \n" +
+                    "temporarily")
         }
     }
 
