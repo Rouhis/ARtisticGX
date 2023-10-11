@@ -18,6 +18,8 @@ import androidx.navigation.NavController
 import com.google.ar.core.Config
 import com.google.ar.core.Config.LightEstimationMode
 import io.github.sceneview.ar.node.PlacementMode
+import io.github.sceneview.light.direction
+import io.github.sceneview.math.Direction
 import io.github.sceneview.math.Position
 
 
@@ -40,6 +42,8 @@ fun ARScreen(model:String, navController: NavController) {
                 arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 arSceneView.planeRenderer.isShadowReceiver = false
                 arSceneView.planeFindingEnabled
+                arSceneView.mainLight?.direction = Direction(-1f)
+
 
 
                 modelNode.value =
