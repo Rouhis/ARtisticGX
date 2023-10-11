@@ -5,6 +5,10 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.artisticgx.composables.ARScreen
+import com.example.artisticgx.composables.Arframe
+import com.example.artisticgx.composables.ModelList
+import com.example.artisticgx.composables.QRScreen
 import com.example.artisticgx.data.ArtisticViewModel
 
 
