@@ -104,6 +104,9 @@ dependencies {
     implementation ("androidx.camera:camera-view:1.2.2")
     implementation ("androidx.camera:camera-extensions:1.2.2")
 
+    //ArCore
+    implementation("com.google.ar:core:1.23.0")
+
     //Accompanist lib
     implementation ("com.google.accompanist:accompanist-permissions:0.31.1-alpha")
 

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1071832742222",
+    "firebase_url": "https://artisticgx-acd29-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "artisticgx-acd29",
+    "storage_bucket": "artisticgx-acd29.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1071832742222:android:db38c308b81547de37c61f",
+        "android_client_info": {
+          "package_name": "com.example.artisticgx"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCipOVvMdCN4lrDyNQ3wNj3W56qRhLAfhk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -59,8 +59,8 @@ fun FurnitureList(model: ArtisticViewModel, navController: NavController){
                                     showConfirmationDialog(navController.context, navController)
 
                                 } else {
-                                    navController.navigate("ARScreen/${it.name}")
-                                    Log.i("tiedot", "ARScreen/${it.name}")
+                                    navController.navigate("ARScreen/${it.name}/${it.id}")
+                                    Log.i("tiedot", "ARScreen/${it.name}/${it.id}")
                                 }
 
                             }
