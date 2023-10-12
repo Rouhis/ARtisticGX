@@ -29,7 +29,6 @@ import io.github.sceneview.math.Direction
 import io.github.sceneview.math.Position
 
 
-
 @Composable
 fun ARScreen(model: String, id: Int, navController: NavController, viewModel: ArtisticViewModel) {
     // Observe LiveData
@@ -45,7 +44,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
         mutableStateOf<ArModelNode?>(null)
     }
     var enabled by remember { mutableStateOf(true) }
-
+    var removeAnchorEnabled by remember { mutableStateOf(true) }
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
@@ -61,7 +60,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
 
 
                 modelNode.value =
-                    ArModelNode(arSceneView.engine, PlacementMode.INSTANT).apply {
+                    ArModelNode(arSceneView.engine, PlacementMode.PLANE_HORIZONTAL_AND_VERTICAL).apply {
                         loadModelGlbAsync(
                             glbFileLocation = "https://users.metropolia.fi/~tuomheik/test/$model.glb",
                             scaleToUnits = 0.8f,
@@ -113,6 +112,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                 Also adds the cloud anchor's ID to the models table in DB */
             Button(
                 onClick = {
+                    removeAnchorEnabled = false
                     enabled = false
                     if (model.isNotEmpty()) {
                         if (modelNode.value?.isAnchored == false) {
@@ -125,14 +125,24 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                                     if (id == it.id) {
                                         println("XPX adding to DB")
                                         viewModel.addNewCloudAnchor(anchor.cloudAnchorId, id)
-                                        Toast.makeText(MyApp.appContext, "Anchor saved", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            MyApp.appContext,
+                                            "Anchor saved",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                     enabled = true
+                                    removeAnchorEnabled = false
                                 }
                             } else {
                                 println("XPX failed: ${anchor.cloudAnchorState}")
-                                Toast.makeText(MyApp.appContext, "Adding the new anchor failed, please try again", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    MyApp.appContext,
+                                    "Adding the new anchor failed, please try again",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 enabled = true
+                                removeAnchorEnabled = false
                             }
                         }
                     }
@@ -145,21 +155,37 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                 App gets the cloud anchor ID from DB */
             Button(
                 onClick = {
+                    enabled = false
                     cloudAnchorFromDB.value?.let {
-                        val tipToast = Toast.makeText(MyApp.appContext, "Please aim your camera to the anchored position", Toast.LENGTH_SHORT)
+                        val tipToast = Toast.makeText(
+                            MyApp.appContext,
+                            "Please aim your camera to the anchored position",
+                            Toast.LENGTH_SHORT
+                        )
                         tipToast.show()
                         modelNode.value?.resolveCloudAnchor(it) { anchor: Anchor, success: Boolean ->
                             if (success) {
                                 println("XPX anchorOnResolve: $anchor")
                                 tipToast.cancel()
-                                Toast.makeText(MyApp.appContext, "Moved model back to the anchored position", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    MyApp.appContext,
+                                    "Moved model back to the anchored position",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                enabled = true
                             } else {
                                 println("XPX anchorOnResolveFailed ${anchor.cloudAnchorState}")
-                                Toast.makeText(MyApp.appContext, "Moving model back to the anchored position failed ${anchor.cloudAnchorState}", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    MyApp.appContext,
+                                    "Moving model back to the anchored position failed ${anchor.cloudAnchorState}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                enabled = true
                             }
                         }
                     }
-                }
+                },
+                enabled = enabled
             ) {
                 if (cloudAnchorFromDB.value?.isNotEmpty() == true) {
                     Text("Move model back to anchored spot")
@@ -169,13 +195,25 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
             }
         }
         /*  Clear the current model's anchor so that it can be moved around freely again.
-            Anchor can be re-added by pressing on the "Move model back to anchored spot" button */
+            Anchor can be re-added by pressing on the "Move model back to anchored spot" button. */
         Button(
-            modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
-            onClick = { modelNode.value?.detachAnchor() }
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 8.dp),
+            onClick = {
+                enabled = true
+                if (modelNode.value?.isAnchored == true) {
+                    modelNode.value?.detachAnchor()
+                    /* If resolving the anchor doesn't move the model back to anchored position, this button
+                       can be pressed to stop resolving. */
+                    modelNode.value?.cancelCloudAnchorResolveTask()
+                }
+            },
+            enabled = removeAnchorEnabled
         ) {
-            Text("Clear model anchor \n" +
-                    "temporarily")
+            Text(
+                "Clear model anchor"
+            )
         }
     }
 
