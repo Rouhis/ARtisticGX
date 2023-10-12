@@ -45,6 +45,9 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
     }
     var enabled by remember { mutableStateOf(true) }
     var removeAnchorEnabled by remember { mutableStateOf(true) }
+    if (model == "") {
+        enabled = false
+    }
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
             modifier = Modifier.fillMaxSize(),
@@ -132,7 +135,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                                         ).show()
                                     }
                                     enabled = true
-                                    removeAnchorEnabled = false
+                                    removeAnchorEnabled = true
                                 }
                             } else {
                                 println("XPX failed: ${anchor.cloudAnchorState}")
@@ -142,7 +145,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 enabled = true
-                                removeAnchorEnabled = false
+                                removeAnchorEnabled = true
                             }
                         }
                     }
@@ -163,6 +166,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                             Toast.LENGTH_SHORT
                         )
                         tipToast.show()
+                        println("XXX $it")
                         modelNode.value?.resolveCloudAnchor(it) { anchor: Anchor, success: Boolean ->
                             if (success) {
                                 println("XPX anchorOnResolve: $anchor")
@@ -203,7 +207,6 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
             onClick = {
                 enabled = true
                 if (modelNode.value?.isAnchored == true) {
-                    modelNode.value?.detachAnchor()
                     /* If resolving the anchor doesn't move the model back to anchored position, this button
                        can be pressed to stop resolving. */
                     modelNode.value?.cancelCloudAnchorResolveTask()
@@ -212,7 +215,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
             enabled = removeAnchorEnabled
         ) {
             Text(
-                "Clear model anchor"
+                "Reset model"
             )
         }
     }
