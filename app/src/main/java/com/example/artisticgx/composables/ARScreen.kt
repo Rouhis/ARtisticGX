@@ -152,7 +152,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                 },
                 enabled = enabled
             ) {
-                Text("Add anchor and host it")
+                Text("Save this position for the model")
             }
             /*  onClick uses a cloud anchor ID to get a saved anchor from the ARCore API's cloud storage.
                 App gets the cloud anchor ID from DB */
@@ -162,7 +162,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                     cloudAnchorFromDB.value?.let {
                         val tipToast = Toast.makeText(
                             MyApp.appContext,
-                            "Please aim your camera to the anchored position",
+                            "Please aim your camera to the saved position",
                             Toast.LENGTH_SHORT
                         )
                         tipToast.show()
@@ -173,7 +173,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                                 tipToast.cancel()
                                 Toast.makeText(
                                     MyApp.appContext,
-                                    "Moved model back to the anchored position",
+                                    "Moved model back to the saved position",
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 enabled = true
@@ -181,7 +181,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                                 println("XPX anchorOnResolveFailed ${anchor.cloudAnchorState}")
                                 Toast.makeText(
                                     MyApp.appContext,
-                                    "Moving model back to the anchored position failed ${anchor.cloudAnchorState}",
+                                    "Moving model back to the saved position failed ${anchor.cloudAnchorState}",
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 enabled = true
@@ -192,9 +192,9 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                 enabled = enabled
             ) {
                 if (cloudAnchorFromDB.value?.isNotEmpty() == true) {
-                    Text("Move model back to anchored spot")
+                    Text("Move model back to the saved spot spot")
                 } else {
-                    Text("No saved anchors for this model")
+                    Text("Model position hasn't been saved")
                 }
             }
         }
@@ -215,7 +215,7 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
             enabled = removeAnchorEnabled
         ) {
             Text(
-                "Reset model"
+                "Reset model state"
             )
         }
     }
