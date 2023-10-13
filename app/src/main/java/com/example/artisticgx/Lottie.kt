@@ -11,6 +11,12 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 
+/**
+ * Composable function that displays a clickable Lottie animation.
+ *
+ * @param navController The NavController used for navigation when the animation completes.
+ * @param modifier The modifier for the Lottie animation.
+ */
 @Composable
 fun ClickableLottieAnimation(
     navController: NavController,

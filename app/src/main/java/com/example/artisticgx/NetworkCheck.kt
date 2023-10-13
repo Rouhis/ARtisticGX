@@ -5,7 +5,12 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 
-
+/**
+ * Checks if the device is connected to a network.
+ *
+ * @param context The context used to access system services.
+ * @return true if the device is connected to a network, false otherwise.
+ */
 fun isNetworkAvailable(context: Context?): Boolean {
     if (context == null) return false
     val connectivityManager =
