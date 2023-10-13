@@ -42,6 +42,6 @@
         </activity>
         <meta-data
             android:name="com.google.android.ar.API_KEY"
-            android:value="AIzaSyCipOVvMdCN4lrDyNQ3wNj3W56qRhLAfhk"/>
+            android:value=""/>
     </application>
 </manifest>
