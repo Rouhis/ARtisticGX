@@ -39,27 +39,33 @@ import com.example.artisticgx.showConfirmationDialog
 
 @Composable
 fun ModelList(model: ArtisticViewModel, navController: NavController) {
+    // Obsever liveData
     val isEmpty = model.isEmpty().observeAsState()
     val framesIsEmpty = model.framesIsEmpty().observeAsState()
+    val isEmptyValue = isEmpty.value
+    val isFramesEmpty = framesIsEmpty.value
+
+    // List of the models and frames that are in the Metropolia webdisk.
     val urls = listOf("sofa", "table_lamp", "lilly_chair", "wooden_cabinet")
     val frameurls = listOf("frame", "frame2")
+
     var selectedOption by remember { mutableStateOf("Paintings") }
     val context = MyApp.appContext
     var expanded by remember { mutableStateOf(false) }
 
-
+    // Check if the user has network connection before calling any functions
     if (isNetworkAvailable(context)) {
-        if (isEmpty.value != null) {
-            if (isEmpty.value!! < urls.size) {
-                println("toimii xdd")
+        if (isEmptyValue != null) {
+            if (isEmptyValue < urls.size) {
+                // Call the function that gets the models from the internet and saves them to the DB from a coroutine
                 LaunchedEffect(urls) {
                     getAndSaveModels(model, urls)
                 }
             }
         }
-        if (framesIsEmpty.value != null) {
-            if (framesIsEmpty.value!! < frameurls.size) {
-                println("toimii xdd")
+        if (isFramesEmpty != null) {
+            if (isFramesEmpty < frameurls.size) {
+                // Call the function that gets the frames from the internet and saves them to the DB from a coroutine
                 LaunchedEffect(frameurls) {
                     getAndSaveFrames(model, frameurls)
                 }
@@ -70,7 +76,7 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
                 .fillMaxWidth()
                 .wrapContentSize(Alignment.Center)
         ) {
-            Button(onClick = { expanded = true}) {
+            Button(onClick = { expanded = true }) {
                 Text(text = "$selectedOption")
             }
 
@@ -102,14 +108,14 @@ fun ModelList(model: ArtisticViewModel, navController: NavController) {
         } else if (selectedOption == "Paintings") {
             FrameList(model = model, navController = navController)
         }
-    }else{
+    } else {
         noNetwork(navController)
     }
 }
 
 
 @Composable
-fun FrameList(model: ArtisticViewModel, navController: NavController){
+fun FrameList(model: ArtisticViewModel, navController: NavController) {
 
     val models = model.getAllFrames().observeAsState(listOf())
     val initData = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
@@ -123,9 +129,11 @@ fun FrameList(model: ArtisticViewModel, navController: NavController){
         ) {
             items(models.value) {
                 val imageBitMap = remember {
-                    BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
+                    it.image?.let { it1 -> BitmapFactory.decodeByteArray(it.image, 0, it1.size) }
                 }
-                modelBitMap = imageBitMap
+                if (imageBitMap != null) {
+                    modelBitMap = imageBitMap
+                }
                 Box(
                     modifier = Modifier
                         .padding(8.dp)

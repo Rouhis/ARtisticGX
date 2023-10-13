@@ -42,16 +42,19 @@ class ArtisticViewModel(application: Application) : AndroidViewModel(application
         return isEmpty.asLiveData()
     }
 
+    // Get all frames from the DB
     fun getAllFrames(): LiveData<List<Frames>>{
         val allFrames: Flow<List<Frames>> = db.FramesDao().getAll()
         return allFrames.asLiveData()
     }
 
+    // Add a new frame to the DB
     fun addNewFrame(modelURL: String, modelName: String, modelImage: ByteArray) {
         val newFrame = Frames(0, modelURL, modelName, modelImage)
         viewModelScope.launch { db.FramesDao().addFrame(newFrame)}
     }
 
+    // Check if there are no columns in the Frames table. Used when adding frames to the DB
     fun framesIsEmpty(): LiveData<Int> {
         val isEmpty: Flow<Int> = db.FramesDao().isEmpty()
         return isEmpty.asLiveData()

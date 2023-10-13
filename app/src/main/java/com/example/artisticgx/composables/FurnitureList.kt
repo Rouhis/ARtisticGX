@@ -42,9 +42,11 @@ fun FurnitureList(model: ArtisticViewModel, navController: NavController){
         ) {
             items(models.value) {
                 val imageBitMap = remember {
-                    BitmapFactory.decodeByteArray(it.image, 0, it.image!!.size)
+                    it.image?.size?.let { it1 -> BitmapFactory.decodeByteArray(it.image, 0, it1) }
                 }
-                modelBitMap = imageBitMap
+                if (imageBitMap != null) {
+                    modelBitMap = imageBitMap
+                }
                 Box(
                     modifier = Modifier
                         .padding(8.dp)
