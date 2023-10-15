@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.artisticgx.ClickableLottieAnimation
+import com.example.artisticgx.lottie.ClickableLottieAnimation
 
 @Composable
 fun noNetwork(navController:NavController) {

@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.artisticgx.MyApp
 import com.example.artisticgx.data.ArtisticViewModel
-import com.example.artisticgx.isNetworkAvailable
-import com.example.artisticgx.showConfirmationDialog
+import com.example.artisticgx.applogic.isNetworkAvailable
+import com.example.artisticgx.applogic.showConfirmationDialog
 
 
 @Composable

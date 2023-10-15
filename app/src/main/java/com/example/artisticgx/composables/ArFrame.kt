@@ -17,8 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
+import com.example.artisticgx.MyApp
 import com.google.ar.core.Config
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.ArModelNode
@@ -30,9 +30,10 @@ import io.github.sceneview.math.Rotation
 import io.github.sceneview.node.Node
 import io.github.sceneview.node.VideoNode
 
+//This composable is used to display an ArScreen and  populate it with a frame and a video player
 @Composable
 fun Arframe(frame: String, navController: NavController) {
-    val context = LocalContext.current
+
     val nodes = remember {
         mutableListOf<Node>()
     }
@@ -61,7 +62,7 @@ fun Arframe(frame: String, navController: NavController) {
                 try {
                     mediaPlayer.reset()
                     mediaPlayer.setDataSource(
-                        context,
+                        MyApp.appContext,
                         selectedVideoUri
                     )
                     mediaPlayer.prepare()
@@ -74,6 +75,7 @@ fun Arframe(frame: String, navController: NavController) {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+        //This ARScene is used to populate the screen with an camera that is AR capable
         ARScene(
             modifier = Modifier.fillMaxSize(),
             nodes = nodes,
@@ -83,6 +85,7 @@ fun Arframe(frame: String, navController: NavController) {
                 arSceneView.planeRenderer.isShadowReceiver = false
                 arSceneView.planeFindingEnabled
                 arSceneView.mainLight?.direction = Direction(-1f)
+                //We add a 3d model to a modelNode
                 modelNode.value =
                     ArModelNode(arSceneView.engine, PlacementMode.PLANE_VERTICAL).apply {
                         loadModelGlbAsync(
@@ -92,14 +95,17 @@ fun Arframe(frame: String, navController: NavController) {
                         ) {
                         }
                     }
+                //We add a VideoNode to a model node
                 modelNode2.value = VideoNode(
                     arSceneView.engine,
+                    //The plane is used as the base where the mediaplayer plays
                     glbFileLocation = "plane.glb",
                     player = mediaPlayer,
                     scaleToUnits = 0.8f,
                     centerOrigin = Position(x = 0.0f, y = 0.0f, z = 30f),
                     scaleToVideoRatio = false
                 ).apply {
+                    //For some reason we need to rotate this by 180 degrees to show the video the right way
                     rotation = Rotation(0f, 0f, 180f)
                 }
 
@@ -110,6 +116,7 @@ fun Arframe(frame: String, navController: NavController) {
 
             },
             onTap = {
+                //On tap of the screen the mediaplayer starts
                 mediaPlayer.start()
             }
 

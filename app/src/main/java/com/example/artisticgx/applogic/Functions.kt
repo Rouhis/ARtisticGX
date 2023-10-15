@@ -1,4 +1,4 @@
-package com.example.artisticgx
+package com.example.artisticgx.applogic
 
 import android.app.AlertDialog
 import android.content.Context

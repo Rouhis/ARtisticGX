@@ -51,19 +51,22 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
         enabled = false
     }
     Box(modifier = Modifier.fillMaxSize()) {
+        //This ARScene is used to populate the screen with an camera that is AR capable
         ARScene(
             modifier = Modifier.fillMaxSize(),
             nodes = nodes,
             planeRenderer = true,
             onCreate = { arSceneView ->
+
                 arSceneView.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 arSceneView.planeRenderer.isShadowReceiver = false
                 arSceneView.planeFindingEnabled
+                //Used to change the direction of the main light
                 arSceneView.mainLight?.direction = Direction(-1f)
 
                 arSceneView.cloudAnchorEnabled = true
 
-
+                //Here we add a ArModelNode to modelNode value that is used to display the chosen 3d model on screen
                 modelNode.value =
                     ArModelNode(arSceneView.engine, PlacementMode.PLANE_HORIZONTAL_AND_VERTICAL).apply {
                         loadModelGlbAsync(
@@ -72,14 +75,14 @@ fun ARScreen(model: String, id: Int, navController: NavController, viewModel: Ar
                             centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
 
                             ) {
-                            //
-                            //     rotation = Rotation(0f, 0f, 0f)
                         }
                     }
+                //We add the model to the nodes list
                 nodes.add(modelNode.value!!)
             },
             onSessionCreate = {
                 LightEstimationMode.DISABLED
+                //Shows the dots on screen when place to put the model is found
                 planeRenderer.isVisible = true
             },
             onTap = {

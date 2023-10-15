@@ -1,4 +1,4 @@
-package com.example.artisticgx
+package com.example.artisticgx.applogic
 
 import android.graphics.ImageFormat
 import android.util.Log

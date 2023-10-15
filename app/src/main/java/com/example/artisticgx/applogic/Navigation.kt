@@ -1,4 +1,4 @@
-package com.example.artisticgx
+package com.example.artisticgx.applogic
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
